@@ -4,7 +4,7 @@
 
 # AI Agent 环境引导
 
-本文用于让 AI agent 在全新 checkout 中完成环境搭建，不依赖特定开发者的 shell 函数、绝对路径、IDE 或预装 ESP-IDF。项目要求 ESP32-C3 对应的 ESP-IDF 5.5.3。
+本文用于让 AI agent 在全新 checkout 中完成环境搭建，不依赖特定开发者的 shell 函数、绝对路径、IDE 或预装 ESP-IDF。项目要求 ESP32-C3 对应的 ESP-IDF 5.5.3 和 Swift 6.3.3。
 
 ## Agent 执行约束
 
@@ -88,6 +88,18 @@ brew install cmake ninja ccache dfu-util libusb python
 原生 Windows 使用乐鑫官方 ESP-IDF Tools Installer，并选择 ESP-IDF v5.5.3。后续命令应在安装器生成的 ESP-IDF PowerShell 或 Command Prompt 中执行，不得把 POSIX 激活命令机械翻译为 PowerShell。
 
 WSL2 可以执行 Linux 编译流程。烧录和监视需要把 USB 设备转发进 WSL；否则在 WSL 编译，在已激活 ESP-IDF 的原生 Windows 终端烧录。
+
+## 安装 Embedded Swift 6.3.3
+
+仓库通过 `.swift-version` 固定版本，并通过 Swiftly 解析实际编译器路径，CMake 不会误用不支持 RISC-V 的 Xcode Swift。先按 [Swift 官方安装说明](https://www.swift.org/install/) 安装 Swiftly，再安装并选中固定版本：
+
+```bash
+swiftly install 6.3.3
+swiftly use 6.3.3
+swiftly use --print-location
+```
+
+最后一条命令应输出已安装的 Swift 6.3.3 工具链目录。完成一次主机初始化后，checkout 无需安装项目内 Swift：`idf.py` 会按照已提交的 manifest 与 lockfile 自动下载固定版本的 `idf_swift` 组件。
 
 ## 安装 ESP-IDF 5.5.3
 
@@ -182,7 +194,7 @@ git status --short --branch
 
 `idf.py fullclean` 只删除构建输出，不能让已有 `sdkconfig` 完整同步新 defaults。
 
-首次构建会把 `dependencies.lock` 锁定的版本下载到 `managed_components/`。不得编辑这个生成目录；普通构建不应留下无法解释的 `dependencies.lock` diff。
+首次构建会把 `dependencies.lock` 锁定的版本（含 `espressif/idf_swift`）下载到 `managed_components/`。不得编辑这个生成目录；普通构建不应留下无法解释的 `dependencies.lock` diff。
 
 核对基线配置：
 

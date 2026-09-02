@@ -37,8 +37,7 @@ Firmware validation uses a fresh temporary build directory and an isolated `sdkc
 The baseline also has a hardware-independent logic test:
 
 ```bash
-cc -std=c11 -Wall -Wextra -Werror -Imain \
-  tests/test_ui_pixel_math.c main/ui_pixel_math.c \
+swiftc main/ui/UIPixelMath.swift tests/TestUIPixelMath.swift \
   -o /tmp/test_ui_pixel_math
 /tmp/test_ui_pixel_math
 ```

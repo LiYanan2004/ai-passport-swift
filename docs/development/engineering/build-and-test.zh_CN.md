@@ -34,8 +34,7 @@ target 或已跟踪 defaults 时，先保留有意的本地设置，再运行
 当前基线含一个可独立运行的纯逻辑测试：
 
 ```bash
-cc -std=c11 -Wall -Wextra -Werror -Imain \
-  tests/test_ui_pixel_math.c main/ui_pixel_math.c \
+swiftc main/ui/UIPixelMath.swift tests/TestUIPixelMath.swift \
   -o /tmp/test_ui_pixel_math
 /tmp/test_ui_pixel_math
 ```

@@ -11,7 +11,7 @@ typedef struct {
     void (*key)(bsp_btn_t btn, bsp_btn_ev_t ev);  // 收按键(长按确定已被 main 拦截)
 } demo_entry_t;
 
-// 各演示页(定义在各自的 .c 里)
+// 各演示页由 Swift 通过 C ABI 导出。
 void demo_display_enter(void); void demo_display_exit(void);
 void demo_display_key(bsp_btn_t btn, bsp_btn_ev_t ev);
 
