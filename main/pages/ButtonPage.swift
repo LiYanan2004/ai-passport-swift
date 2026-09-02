@@ -58,19 +58,18 @@ private func setLatestButtonLog(_ button: Int32, _ event: Int32) {
 }
 
 private func configureButtonLogLabel(_ label: OpaquePointer?, _ verticalOffset: Int32, _ text: UnsafePointer<CChar>?) {
-    lv_obj_set_style_text_color(label, lv_color_hex(UInt32(UI_INK)), 0)
+    lv_obj_set_style_text_color(label, lv_color_hex(uiInk), 0)
     lv_obj_align(label, LV_ALIGN_TOP_LEFT, 9, verticalOffset)
     lv_label_set_text(label, text)
 }
 
-@_cdecl("demo_button_enter")
-func demoButtonEnter() {
+func enterButtonPage() {
     buttonScreen = uiPixelScreenCreate("BUTTON / ADC")
     guard let buttonScreen else {
         return
     }
-    let panel = uiPixelPanelCreate(buttonScreen, 18, 58, 204, 184, UInt32(UI_PAPER))
-    buttonMillivoltsLabel = uiPixelLabel(panel, "-- mV", swift_lvgl_font_montserrat_20(), UInt32(UI_SKY_DARK))
+    let panel = uiPixelPanelCreate(buttonScreen, 18, 58, 204, 184, uiPaper)
+    buttonMillivoltsLabel = uiPixelLabel(panel, "-- mV", swift_lvgl_font_montserrat_20(), uiSkyDark)
     if let buttonMillivoltsLabel {
         lv_obj_align(buttonMillivoltsLabel, LV_ALIGN_TOP_MID, 0, 8)
     }
@@ -92,8 +91,7 @@ func demoButtonEnter() {
     lv_screen_load(buttonScreen)
 }
 
-@_cdecl("demo_button_exit")
-func demoButtonExit() {
+func exitButtonPage() {
     if let buttonTimer {
         lv_timer_delete(buttonTimer)
     }
@@ -106,8 +104,7 @@ func demoButtonExit() {
     buttonLogLabels = (nil, nil, nil, nil, nil, nil)
 }
 
-@_cdecl("demo_button_key")
-func demoButtonKey(_ button: Int32, _ event: Int32) {
+func handleButtonPageKey(_ button: Int32, _ event: Int32) {
     shiftButtonLog()
     setLatestButtonLog(button, event)
 }

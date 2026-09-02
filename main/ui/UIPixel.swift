@@ -1,9 +1,9 @@
-private let pixelSky = UInt32(UI_SKY)
-private let pixelInk = UInt32(UI_INK)
-private let pixelPaper = UInt32(UI_PAPER)
-private let pixelGrass = UInt32(UI_GRASS)
-private let pixelGrassDark = UInt32(UI_GRASS_DARK)
-private let pixelOrange = UInt32(UI_ORANGE)
+private let pixelSky = uiSky
+private let pixelInk = uiInk
+private let pixelPaper = uiPaper
+private let pixelGrass = uiGrass
+private let pixelGrassDark = uiGrassDark
+private let pixelOrange = uiOrange
 
 private func pixelBlock(
     _ parent: OpaquePointer?,
@@ -31,7 +31,6 @@ private func addCloud(_ parent: OpaquePointer?, _ x: Int32, _ y: Int32) {
     _ = pixelBlock(parent, x + 27, y + 1, 9, 8, 0xFFFFFF)
 }
 
-@_cdecl("ui_pixel_label")
 func uiPixelLabel(
     _ parent: OpaquePointer?,
     _ text: UnsafePointer<CChar>?,
@@ -45,7 +44,6 @@ func uiPixelLabel(
     return label
 }
 
-@_cdecl("ui_pixel_screen_create")
 func uiPixelScreenCreate(_ title: UnsafePointer<CChar>?) -> OpaquePointer? {
     let screen = lv_obj_create(nil)
     lv_obj_remove_flag(screen, LV_OBJ_FLAG_SCROLLABLE)
@@ -70,7 +68,6 @@ func uiPixelScreenCreate(_ title: UnsafePointer<CChar>?) -> OpaquePointer? {
     return screen
 }
 
-@_cdecl("ui_pixel_panel_create")
 func uiPixelPanelCreate(
     _ parent: OpaquePointer?,
     _ x: Int32,
@@ -87,7 +84,6 @@ func uiPixelPanelCreate(
     return panel
 }
 
-@_cdecl("ui_pixel_mascot_create")
 func uiPixelMascotCreate(_ parent: OpaquePointer?, _ x: Int32, _ y: Int32) -> OpaquePointer? {
     let mascot = lv_obj_create(parent)
     lv_obj_remove_flag(mascot, LV_OBJ_FLAG_SCROLLABLE)
@@ -117,7 +113,6 @@ func uiPixelMascotCreate(_ parent: OpaquePointer?, _ x: Int32, _ y: Int32) -> Op
     return mascot
 }
 
-@_cdecl("ui_pixel_mascot_jump")
 func uiPixelMascotJump(_ mascot: OpaquePointer?) {
     guard let mascot else {
         return
@@ -125,9 +120,8 @@ func uiPixelMascotJump(_ mascot: OpaquePointer?) {
     swift_lvgl_mascot_jump(mascot)
 }
 
-@_cdecl("ui_pixel_set_selected")
 func uiPixelSetSelected(_ panel: OpaquePointer?, _ selected: Bool, _ enabled: Bool) {
-    let color: UInt32 = enabled ? (selected ? UInt32(UI_YELLOW) : pixelPaper) : 0x78909C
+    let color: UInt32 = enabled ? (selected ? uiYellow : pixelPaper) : 0x78909C
     lv_obj_set_style_bg_color(panel, lv_color_hex(color), 0)
     lv_obj_set_style_border_color(panel, lv_color_hex(selected ? 0xFFFFFF : pixelInk), 0)
 }

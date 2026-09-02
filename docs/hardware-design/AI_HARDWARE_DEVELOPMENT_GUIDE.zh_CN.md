@@ -256,8 +256,8 @@ SOC 准确度取决于电芯与 profile 的匹配程度。本驱动给出的是�
 
 新增硬件验证页：
 
-1. 创建 `main/pages/<Feature>Page.swift`，通过 `@_cdecl` 实现 C ABI 的 `enter`、`exit`、`key`。
-2. 在 `main/demo.h` 声明，在 `main/CMakeLists.txt` 加源文件，在 `main.c` 的 `DEMOS[]` 注册。
+1. 创建 `main/pages/<Feature>Page.swift`，实现 Swift 的 `enter`、`exit`、`key` 函数。
+2. 在 `main/CMakeLists.txt` 加源文件，在 `main/Main.swift` 的菜单路由中注册。
 3. `enter` 创建并加载自己的 screen；`exit` 先停任务/定时器，再删 screen 和清空指针。
 4. 页面文字保持英文；说明性注释可用中文。
 5. 慢操作放工作任务，结果通过 LVGL 锁更新界面。
@@ -265,7 +265,7 @@ SOC 准确度取决于电芯与 profile 的匹配程度。本驱动给出的是�
 
 C 代码仅保留给协议或 SDK 的窄桥接层。
 
-如果菜单项依赖新外设，还需扩展 `s_ok[]` 初始化与失败禁用逻辑。注意当前数组索引与 `DEMOS[]` 顺序隐式对应，修改顺序时必须同步核对。
+如果菜单项依赖新外设，还需扩展 `Main.swift` 的可用状态与失败禁用逻辑。菜单路由顺序与可用状态隐式对应，修改顺序时必须同步核对。
 
 ## 12. 开发环境搭建
 

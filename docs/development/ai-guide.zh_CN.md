@@ -42,11 +42,10 @@ Natural-language requirement
               └─ bsp_pins.h       Single source of truth for pins and hardware parameters
 ```
 
-新增普通页面时，创建 `main/pages/<Feature>Page.swift`，通过 `@_cdecl` 实现 C ABI 的 `enter`、`exit`、`key` 接口，然后同步修改：
+新增普通页面时，创建 `main/pages/<Feature>Page.swift`，实现 Swift 的 `enter`、`exit`、`key` 函数，然后同步修改：
 
-- `main/demo.h` 中的声明；
 - `main/CMakeLists.txt` 中的源文件；
-- `main/main.c` 的 `DEMOS[]` 注册；
+- `main/Main.swift` 的菜单路由注册；
 - 若有新的可选外设，菜单的初始化状态与失败降级。
 
 C 仅保留给 Embedded Swift 无法安全导入的窄平台桥接 API。

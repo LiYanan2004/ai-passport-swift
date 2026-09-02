@@ -181,9 +181,9 @@ Review at least the 24 KB LVGL pool, 9.6 KB LCD DMA buffer, I2S DMA, 96 KB demo 
 
 For reusable hardware capability, add `bsp_<feature>.h` and its implementation, keep constants in `bsp_pins.h`, update component CMake/dependencies, return `esp_err_t`, log actionable pin/address context, and document threading, blocking, ownership, initialization, and failure behavior.
 
-For a validation page, implement `enter`, `exit`, and `key` in `main/pages/<Feature>Page.swift` with `@_cdecl`; declare it in `demo.h`, list it in CMake, and register it in `DEMOS[]`. Create/load a page-owned screen on entry. Stop workers/timers before deleting it on exit. Keep UI text in English, put slow work in worker tasks, lock LVGL updates, and preserve global OK-long-press return behavior. Keep C only for narrow protocol or SDK bridges.
+For a validation page, implement `enter`, `exit`, and `key` Swift functions in `main/pages/<Feature>Page.swift`; list it in CMake and route it from `Main.swift`. Create/load a page-owned screen on entry. Stop workers/timers before deleting it on exit. Keep UI text in English, put slow work in worker tasks, lock LVGL updates, and preserve global OK-long-press return behavior. Keep C only for narrow protocol or SDK bridges.
 
-Menu initialization status arrays implicitly follow `DEMOS[]` order; update and review them together.
+Menu availability state in `Main.swift` follows the route order; update and review both together.
 
 ## 12. Development environment
 

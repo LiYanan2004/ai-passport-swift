@@ -1,5 +1,7 @@
 #include "swift_platform_bridge.h"
 
+#include "bsp_button.h"
+
 #include "bsp_audio.h"
 #include "bsp_display.h"
 
@@ -31,6 +33,19 @@
 #define SWIFT_AUDIO_TONE_HZ 1000
 #define SWIFT_AUDIO_CHUNK_SAMPLES 512
 #define SWIFT_AUDIO_RECORD_SECONDS 3
+
+extern void swift_main_button_event(int32_t button, int32_t event);
+
+static void swift_platform_button_callback(bsp_btn_t button, bsp_btn_ev_t event, void *user)
+{
+    (void)user;
+    swift_main_button_event((int32_t)button, (int32_t)event);
+}
+
+esp_err_t swift_platform_button_init(void)
+{
+    return bsp_button_init(swift_platform_button_callback, 0);
+}
 
 static bool s_nvs_ready;
 static bool s_netif_ready;

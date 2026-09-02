@@ -37,7 +37,7 @@ requirement
               └─ bsp_pins.h       pin and hardware-parameter source of truth
 ```
 
-A new page implements the C ABI `enter`, `exit`, and `key` interface in `main/pages/<Feature>Page.swift` with `@_cdecl`, is declared in `main/demo.h`, added to `main/CMakeLists.txt`, and registered in `main.c`. Keep C limited to narrow platform bridges for APIs that Embedded Swift cannot import safely. Extend menu initialization and failure degradation for new optional peripherals.
+A new page implements `enter`, `exit`, and `key` Swift functions in `main/pages/<Feature>Page.swift`, is added to `main/CMakeLists.txt`, and routed from `main/Main.swift`. Keep C limited to narrow platform bridges for APIs that Embedded Swift cannot import safely. Extend menu initialization and failure degradation for new optional peripherals.
 
 Only reusable hardware capabilities belong in the BSP. Document blocking behavior, task context, ownership, failures, and initialization order. Pins and I2C addresses belong only in `bsp_pins.h`.
 

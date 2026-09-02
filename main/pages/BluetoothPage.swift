@@ -21,12 +21,11 @@ private func bluetoothTimerTick(_ timer: OpaquePointer?) {
     refreshBluetoothPage()
 }
 
-@_cdecl("demo_ble_enter")
-func demoBluetoothEnter() {
+func enterBluetoothPage() {
     bluetoothScreen = uiPixelScreenCreate("BLUETOOTH LE")
     guard let bluetoothScreen else { return }
-    let panel = uiPixelPanelCreate(bluetoothScreen, 22, 58, 196, 180, UInt32(UI_PAPER))
-    bluetoothStatusLabel = uiPixelLabel(panel, "Starting NimBLE...", swift_lvgl_font_montserrat_14(), UInt32(UI_INK))
+    let panel = uiPixelPanelCreate(bluetoothScreen, 22, 58, 196, 180, uiPaper)
+    bluetoothStatusLabel = uiPixelLabel(panel, "Starting NimBLE...", swift_lvgl_font_montserrat_14(), uiInk)
     if let bluetoothStatusLabel {
         lv_obj_set_width(bluetoothStatusLabel, 168)
         lv_obj_set_style_text_align(bluetoothStatusLabel, LV_TEXT_ALIGN_CENTER, 0)
@@ -38,8 +37,7 @@ func demoBluetoothEnter() {
     swift_platform_ble_start()
 }
 
-@_cdecl("demo_ble_exit")
-func demoBluetoothExit() {
+func exitBluetoothPage() {
     if let bluetoothTimer { lv_timer_delete(bluetoothTimer) }
     bluetoothTimer = nil
     swift_platform_ble_stop()
@@ -48,8 +46,7 @@ func demoBluetoothExit() {
     bluetoothStatusLabel = nil
 }
 
-@_cdecl("demo_ble_key")
-func demoBluetoothKey(_ button: Int32, _ event: Int32) {
+func handleBluetoothPageKey(_ button: Int32, _ event: Int32) {
     guard button == Int32(BSP_BTN_OK.rawValue), event == Int32(BSP_BTN_CLICK.rawValue) else { return }
     swift_platform_ble_restart_advertising()
 }

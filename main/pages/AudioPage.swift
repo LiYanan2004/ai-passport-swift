@@ -26,20 +26,19 @@ private func audioTimerTick(_ timer: OpaquePointer?) {
     refreshAudioStatus()
 }
 
-@_cdecl("demo_audio_enter")
-func demoAudioEnter() {
+func enterAudioPage() {
     audioScreen = uiPixelScreenCreate("AUDIO")
     guard let audioScreen else { return }
-    let panel = uiPixelPanelCreate(audioScreen, 18, 62, 204, 168, UInt32(UI_PAPER))
-    let record = uiPixelPanelCreate(panel, 58, 12, 72, 72, UInt32(UI_INK))
+    let panel = uiPixelPanelCreate(audioScreen, 18, 62, 204, 168, uiPaper)
+    let record = uiPixelPanelCreate(panel, 58, 12, 72, 72, uiInk)
     let disc = lv_obj_create(record)
     lv_obj_set_size(disc, 36, 36)
     lv_obj_set_style_radius(disc, LV_RADIUS_CIRCLE, 0)
-    lv_obj_set_style_bg_color(disc, lv_color_hex(UInt32(UI_RED)), 0)
+    lv_obj_set_style_bg_color(disc, lv_color_hex(uiRed), 0)
     lv_obj_set_style_border_width(disc, 0, 0)
     lv_obj_center(disc)
 
-    audioStatusLabel = uiPixelLabel(panel, "OK: 1kHz TONE\nUP: RECORD + PLAY", swift_lvgl_font_montserrat_14(), UInt32(UI_INK))
+    audioStatusLabel = uiPixelLabel(panel, "OK: 1kHz TONE\nUP: RECORD + PLAY", swift_lvgl_font_montserrat_14(), uiInk)
     if let audioStatusLabel {
         lv_obj_set_style_text_align(audioStatusLabel, LV_TEXT_ALIGN_CENTER, 0)
         lv_obj_set_width(audioStatusLabel, 176)
@@ -52,8 +51,7 @@ func demoAudioEnter() {
     lv_screen_load(audioScreen)
 }
 
-@_cdecl("demo_audio_exit")
-func demoAudioExit() {
+func exitAudioPage() {
     if let audioTimer { lv_timer_delete(audioTimer) }
     audioTimer = nil
     swift_platform_audio_stop()
@@ -63,8 +61,7 @@ func demoAudioExit() {
     audioMascot = nil
 }
 
-@_cdecl("demo_audio_key")
-func demoAudioKey(_ button: Int32, _ event: Int32) {
+func handleAudioPageKey(_ button: Int32, _ event: Int32) {
     guard event == Int32(BSP_BTN_CLICK.rawValue) else { return }
     if button == Int32(BSP_BTN_OK.rawValue) {
         swift_platform_audio_request_tone()

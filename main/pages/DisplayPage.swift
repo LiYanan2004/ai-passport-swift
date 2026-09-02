@@ -62,8 +62,7 @@ private func applyDisplayBacklight() {
     }
 }
 
-@_cdecl("demo_display_enter")
-func demoDisplayEnter() {
+func enterDisplayPage() {
     displayColorIndex = 0
     displayBacklightIndex = 0
     applyDisplayBacklight()
@@ -73,7 +72,7 @@ func demoDisplayEnter() {
         return
     }
     displaySwatch = uiPixelPanelCreate(displayScreen, 18, 58, 204, 188, 0xFF0000)
-    displayInfo = uiPixelLabel(displaySwatch, "", swift_lvgl_font_montserrat_14(), UInt32(UI_INK))
+    displayInfo = uiPixelLabel(displaySwatch, "", swift_lvgl_font_montserrat_14(), uiInk)
     if let displayInfo {
         lv_obj_set_style_text_align(displayInfo, LV_TEXT_ALIGN_CENTER, 0)
         lv_obj_center(displayInfo)
@@ -83,8 +82,7 @@ func demoDisplayEnter() {
     lv_screen_load(displayScreen)
 }
 
-@_cdecl("demo_display_exit")
-func demoDisplayExit() {
+func exitDisplayPage() {
     bsp_display_backlight(100)
     if let displayScreen {
         lv_obj_delete(displayScreen)
@@ -95,8 +93,7 @@ func demoDisplayExit() {
     displayMascot = nil
 }
 
-@_cdecl("demo_display_key")
-func demoDisplayKey(_ button: Int32, _ event: Int32) {
+func handleDisplayPageKey(_ button: Int32, _ event: Int32) {
     guard event == Int32(BSP_BTN_CLICK.rawValue) else {
         return
     }

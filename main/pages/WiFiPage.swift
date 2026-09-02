@@ -26,17 +26,16 @@ private func wifiTimerTick(_ timer: OpaquePointer?) {
     refreshWiFiPage()
 }
 
-@_cdecl("demo_wifi_enter")
-func demoWiFiEnter() {
+func enterWiFiPage() {
     wifiScreen = uiPixelScreenCreate("WI-FI SCAN")
     guard let wifiScreen else { return }
-    let panel = uiPixelPanelCreate(wifiScreen, 12, 54, 216, 190, UInt32(UI_PAPER))
-    wifiStatusLabel = uiPixelLabel(panel, "Starting Wi-Fi...", swift_lvgl_font_montserrat_14(), UInt32(UI_SKY_DARK))
+    let panel = uiPixelPanelCreate(wifiScreen, 12, 54, 216, 190, uiPaper)
+    wifiStatusLabel = uiPixelLabel(panel, "Starting Wi-Fi...", swift_lvgl_font_montserrat_14(), uiSkyDark)
     if let wifiStatusLabel {
         lv_obj_set_width(wifiStatusLabel, 190)
         lv_obj_align(wifiStatusLabel, LV_ALIGN_TOP_LEFT, 2, 2)
     }
-    wifiResultsLabel = uiPixelLabel(panel, "RSSI  SSID  CHANNEL", swift_lvgl_font_montserrat_14(), UInt32(UI_INK))
+    wifiResultsLabel = uiPixelLabel(panel, "RSSI  SSID  CHANNEL", swift_lvgl_font_montserrat_14(), uiInk)
     if let wifiResultsLabel {
         lv_obj_set_width(wifiResultsLabel, 190)
         lv_obj_align(wifiResultsLabel, LV_ALIGN_TOP_LEFT, 2, 35)
@@ -47,8 +46,7 @@ func demoWiFiEnter() {
     swift_platform_wifi_start()
 }
 
-@_cdecl("demo_wifi_exit")
-func demoWiFiExit() {
+func exitWiFiPage() {
     if let wifiTimer { lv_timer_delete(wifiTimer) }
     wifiTimer = nil
     swift_platform_wifi_stop()
@@ -58,8 +56,7 @@ func demoWiFiExit() {
     wifiResultsLabel = nil
 }
 
-@_cdecl("demo_wifi_key")
-func demoWiFiKey(_ button: Int32, _ event: Int32) {
+func handleWiFiPageKey(_ button: Int32, _ event: Int32) {
     guard button == Int32(BSP_BTN_OK.rawValue), event == Int32(BSP_BTN_CLICK.rawValue) else { return }
     if let wifiResultsLabel { lv_label_set_text(wifiResultsLabel, "RSSI  SSID  CHANNEL") }
     swift_platform_wifi_rescan()

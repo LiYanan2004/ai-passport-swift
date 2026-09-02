@@ -1,7 +1,12 @@
 #pragma once
 
+#include "esp_err.h"
+
 #include <stdbool.h>
 #include <stdint.h>
+
+// Registers the C ABI callback exported by Main.swift with the BSP button driver.
+esp_err_t swift_platform_button_init(void);
 
 typedef enum {
     SWIFT_AUDIO_IDLE = 0,

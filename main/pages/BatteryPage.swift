@@ -23,16 +23,15 @@ private func batteryTimerTick(_ timer: OpaquePointer?) {
     updateBatteryLabels()
 }
 
-@_cdecl("demo_battery_enter")
-func demoBatteryEnter() {
+func enterBatteryPage() {
     screen = uiPixelScreenCreate("BATTERY")
     guard let screen else {
         return
     }
 
-    let panel = uiPixelPanelCreate(screen, 24, 67, 192, 157, UInt32(UI_YELLOW))
+    let panel = uiPixelPanelCreate(screen, 24, 67, 192, 157, uiYellow)
 
-    socLabel = uiPixelLabel(panel, "-- %", swift_lvgl_font_montserrat_20(), UInt32(UI_INK))
+    socLabel = uiPixelLabel(panel, "-- %", swift_lvgl_font_montserrat_20(), uiInk)
     if let socLabel {
         lv_obj_align(socLabel, LV_ALIGN_TOP_MID, 0, 12)
     }
@@ -42,12 +41,12 @@ func demoBatteryEnter() {
 
     millivoltsLabel = lv_label_create(panel)
     if let millivoltsLabel {
-        lv_obj_set_style_text_color(millivoltsLabel, lv_color_hex(UInt32(UI_INK)), 0)
+        lv_obj_set_style_text_color(millivoltsLabel, lv_color_hex(uiInk), 0)
         lv_obj_align(millivoltsLabel, LV_ALIGN_TOP_MID, 0, 64)
         lv_label_set_text(millivoltsLabel, "-- mV")
     }
 
-    let battery = uiPixelPanelCreate(panel, 38, 96, 100, 38, UInt32(UI_GRASS))
+    let battery = uiPixelPanelCreate(panel, 38, 96, 100, 38, uiGrass)
     lv_obj_set_style_border_width(battery, 4, 0)
     _ = uiPixelMascotCreate(screen, 101, 238)
 
@@ -56,8 +55,7 @@ func demoBatteryEnter() {
     lv_screen_load(screen)
 }
 
-@_cdecl("demo_battery_exit")
-func demoBatteryExit() {
+func exitBatteryPage() {
     if let timer {
         lv_timer_delete(timer)
     }
@@ -71,8 +69,7 @@ func demoBatteryExit() {
     millivoltsLabel = nil
 }
 
-@_cdecl("demo_battery_key")
-func demoBatteryKey(_ button: Int32, _ event: Int32) {
+func handleBatteryPageKey(_ button: Int32, _ event: Int32) {
     _ = button
     _ = event
 }
