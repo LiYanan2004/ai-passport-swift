@@ -10,5 +10,5 @@
 #include "bsp_audio.h"
 #include "esp_sleep.h"
 #include "lvgl.h"
-#include "swift_lvgl_bridge.h"
-#include "swift_platform_bridge.h"
+#include "LVGLInterop.h"
+#include "DeviceInterop.h"

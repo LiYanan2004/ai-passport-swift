@@ -1,4 +1,4 @@
-#include "swift_platform_bridge.h"
+#include "DeviceInterop.h"
 
 #include "bsp_button.h"
 
@@ -179,6 +179,27 @@ static bool s_wifi_started;
 static bool s_wifi_handler_registered;
 static char s_wifi_results[320];
 
+static void wifi_release_resources(void)
+{
+    if (s_wifi_started) {
+        esp_wifi_scan_stop();
+        esp_wifi_stop();
+        s_wifi_started = false;
+    }
+    if (s_wifi_handler_registered) {
+        esp_event_handler_instance_unregister(WIFI_EVENT, WIFI_EVENT_SCAN_DONE, s_wifi_scan_handler);
+        s_wifi_handler_registered = false;
+    }
+    if (s_wifi_initialized) {
+        esp_wifi_deinit();
+        s_wifi_initialized = false;
+    }
+    if (s_wifi_station) {
+        esp_netif_destroy_default_wifi(s_wifi_station);
+        s_wifi_station = NULL;
+    }
+}
+
 static void wifi_scan_done(void *argument, esp_event_base_t base, int32_t identifier, void *data)
 {
     (void)argument;
@@ -233,27 +254,12 @@ void swift_platform_wifi_start(void)
 failed:
     s_wifi_error = error;
     s_wifi_state = SWIFT_WIFI_FAILED;
+    wifi_release_resources();
 }
 
 void swift_platform_wifi_stop(void)
 {
-    if (s_wifi_started) {
-        esp_wifi_scan_stop();
-        esp_wifi_stop();
-        s_wifi_started = false;
-    }
-    if (s_wifi_handler_registered) {
-        esp_event_handler_instance_unregister(WIFI_EVENT, WIFI_EVENT_SCAN_DONE, s_wifi_scan_handler);
-        s_wifi_handler_registered = false;
-    }
-    if (s_wifi_initialized) {
-        esp_wifi_deinit();
-        s_wifi_initialized = false;
-    }
-    if (s_wifi_station) {
-        esp_netif_destroy_default_wifi(s_wifi_station);
-        s_wifi_station = NULL;
-    }
+    wifi_release_resources();
     s_wifi_state = SWIFT_WIFI_IDLE;
 }
 

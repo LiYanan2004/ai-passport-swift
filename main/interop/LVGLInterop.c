@@ -1,16 +1,6 @@
-#include "swift_lvgl_bridge.h"
+#include "LVGLInterop.h"
 
-const lv_font_t *swift_lvgl_font_montserrat_14(void)
-{
-    return &lv_font_montserrat_14;
-}
-
-const lv_font_t *swift_lvgl_font_montserrat_20(void)
-{
-    return &lv_font_montserrat_20;
-}
-
-void swift_lvgl_label_set_value(lv_obj_t *label, int value, const char *unit)
+void passport_lvgl_label_set_value(lv_obj_t *label, int value, const char *unit)
 {
     lv_label_set_text_fmt(label, value < 0 ? "-- %s" : "%d %s", value, unit);
 }
@@ -25,7 +15,7 @@ static void set_object_opacity(void *object, int32_t value)
     lv_obj_set_style_opa(object, (lv_opa_t)value, 0);
 }
 
-void swift_lvgl_mascot_start_blink(lv_obj_t *eye)
+void passport_lvgl_mascot_start_blink(lv_obj_t *eye)
 {
     lv_anim_t animation;
     lv_anim_init(&animation);
@@ -40,7 +30,7 @@ void swift_lvgl_mascot_start_blink(lv_obj_t *eye)
     lv_anim_start(&animation);
 }
 
-void swift_lvgl_mascot_jump(lv_obj_t *mascot)
+void passport_lvgl_mascot_jump(lv_obj_t *mascot)
 {
     int y = lv_obj_get_y(mascot);
     lv_anim_delete(mascot, set_object_y);

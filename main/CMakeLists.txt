@@ -1,22 +1,31 @@
 idf_component_register(
-    SRCS "bridge/swift_lvgl_bridge.c"
-         "bridge/swift_platform_bridge.c"
+    SRCS "interop/LVGLInterop.c"
+         "interop/DeviceInterop.c"
     INCLUDE_DIRS "."
     REQUIRES bsp bt esp_event esp_hw_support esp_netif esp_timer esp_wifi nvs_flash
     PRIV_REQUIRES idf_swift
 )
 
 idf_component_register_swift(${COMPONENT_LIB}
-    BRIDGING_HEADER "${CMAKE_CURRENT_LIST_DIR}/bridge/SwiftBridge.h"
+    BRIDGING_HEADER "${CMAKE_CURRENT_LIST_DIR}/interop/InteropBridge.h"
     SRCS "Main.swift"
-         "pages/BatteryPage.swift"
-         "pages/DisplayPage.swift"
-         "pages/ButtonPage.swift"
-         "pages/AudioPage.swift"
-         "pages/WiFiPage.swift"
-         "pages/BluetoothPage.swift"
-         "pages/LowPowerPage.swift"
+         "PageRouter.swift"
+         "pages/LVBatteryViewController.swift"
+         "pages/LVDisplayViewController.swift"
+         "pages/LVButtonViewController.swift"
+         "pages/LVAudioViewController.swift"
+         "pages/LVWiFiViewController.swift"
+         "pages/LVBluetoothViewController.swift"
+         "pages/LVLowPowerViewController.swift"
          "ui/UIPixel.swift"
-         "ui/UITheme.swift"
+         "platform/LVAlignment.swift"
+         "platform/LVFont.swift"
+         "platform/LVColor.swift"
+         "platform/LVObject.swift"
+         "platform/LVContainer.swift"
+         "platform/LVLabel.swift"
+         "platform/LVMascotAnimation.swift"
+         "platform/LVViewController.swift"
+         "platform/LVTimer.swift"
          "ui/UIPixelMath.swift"
 )

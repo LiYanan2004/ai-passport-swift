@@ -1,30 +1,30 @@
-private let pixelSky = uiSky
-private let pixelInk = uiInk
-private let pixelPaper = uiPaper
-private let pixelGrass = uiGrass
-private let pixelGrassDark = uiGrassDark
-private let pixelOrange = uiOrange
+private let pixelSky = LVColor.sky._hexValue
+private let pixelInk = LVColor.ink._hexValue
+private let pixelPaper = LVColor.paper._hexValue
+private let pixelGrass = LVColor.grass._hexValue
+private let pixelGrassDark = LVColor.grassDark._hexValue
+private let pixelOrange = LVColor.orange._hexValue
 
 private func pixelBlock(
-    _ parent: OpaquePointer?,
+    _ parent: LVObject?,
     _ x: Int32,
     _ y: Int32,
     _ width: Int32,
     _ height: Int32,
     _ color: UInt32
-) -> OpaquePointer? {
-    let object = lv_obj_create(parent)
-    lv_obj_remove_flag(object, LV_OBJ_FLAG_SCROLLABLE)
-    lv_obj_set_pos(object, x, y)
-    lv_obj_set_size(object, width, height)
-    lv_obj_set_style_radius(object, 0, 0)
-    lv_obj_set_style_border_width(object, 0, 0)
-    lv_obj_set_style_pad_all(object, 0, 0)
-    lv_obj_set_style_bg_color(object, lv_color_hex(color), 0)
+) -> LVContainer? {
+    let object = LVContainer(parent: parent)
+    object?.removeScrollableFlag()
+    object?.setPosition(x: x, y: y)
+    object?.setSize(width: width, height: height)
+    object?.setCornerRadius(0)
+    object?.setBorderWidth(0)
+    object?.setPadding(0)
+    object?.setBackgroundColor(color)
     return object
 }
 
-private func addCloud(_ parent: OpaquePointer?, _ x: Int32, _ y: Int32) {
+private func addCloud(_ parent: LVObject?, _ x: Int32, _ y: Int32) {
     _ = pixelBlock(parent, x + 1, y + 7, 43, 10, pixelInk)
     _ = pixelBlock(parent, x + 5, y + 4, 35, 10, 0xFFFFFF)
     _ = pixelBlock(parent, x + 12, y, 10, 9, 0xFFFFFF)
@@ -32,24 +32,23 @@ private func addCloud(_ parent: OpaquePointer?, _ x: Int32, _ y: Int32) {
 }
 
 func uiPixelLabel(
-    _ parent: OpaquePointer?,
+    _ parent: LVObject?,
     _ text: UnsafePointer<CChar>?,
-    _ font: UnsafePointer<lv_font_t>?,
+    _ font: LVFont,
     _ color: UInt32
-) -> OpaquePointer? {
-    let label = lv_label_create(parent)
-    lv_label_set_text(label, text)
-    lv_obj_set_style_text_font(label, font, 0)
-    lv_obj_set_style_text_color(label, lv_color_hex(color), 0)
+) -> LVLabel? {
+    let label = LVLabel(parent: parent, text: "")
+    label?.setText(text)
+    font.apply(to: label)
+    label?.setTextColor(color)
     return label
 }
 
-func uiPixelScreenCreate(_ title: UnsafePointer<CChar>?) -> OpaquePointer? {
-    let screen = lv_obj_create(nil)
-    lv_obj_remove_flag(screen, LV_OBJ_FLAG_SCROLLABLE)
-    lv_obj_set_style_bg_color(screen, lv_color_hex(pixelSky), 0)
-    lv_obj_set_style_border_width(screen, 0, 0)
-    lv_obj_set_style_pad_all(screen, 0, 0)
+func uiPixelScreenConfigure(_ screen: LVObject, title: UnsafePointer<CChar>?) {
+    screen.removeScrollableFlag()
+    screen.setBackgroundColor(pixelSky)
+    screen.setBorderWidth(0)
+    screen.setPadding(0)
 
     addCloud(screen, 188, 8)
     _ = pixelBlock(screen, 0, 286, 240, 34, pixelGrass)
@@ -61,37 +60,36 @@ func uiPixelScreenCreate(_ title: UnsafePointer<CChar>?) -> OpaquePointer? {
 
     _ = pixelBlock(screen, 9, 12, 151, 33, pixelInk)
     let plate = pixelBlock(screen, 5, 8, 151, 33, pixelPaper)
-    lv_obj_set_style_border_color(plate, lv_color_hex(pixelInk), 0)
-    lv_obj_set_style_border_width(plate, 3, 0)
-    let heading = uiPixelLabel(plate, title, swift_lvgl_font_montserrat_20(), pixelInk)
-    lv_obj_center(heading)
-    return screen
+    plate?.setBorderColor(pixelInk)
+    plate?.setBorderWidth(3)
+    let heading = uiPixelLabel(plate, title, LVFont.montserrat20, pixelInk)
+    heading?.center()
 }
 
 func uiPixelPanelCreate(
-    _ parent: OpaquePointer?,
+    _ parent: LVObject?,
     _ x: Int32,
     _ y: Int32,
     _ width: Int32,
     _ height: Int32,
     _ color: UInt32
-) -> OpaquePointer? {
+) -> LVContainer? {
     _ = pixelBlock(parent, x + 5, y + 6, width, height, pixelInk)
     let panel = pixelBlock(parent, x, y, width, height, color)
-    lv_obj_set_style_border_color(panel, lv_color_hex(pixelInk), 0)
-    lv_obj_set_style_border_width(panel, 4, 0)
-    lv_obj_set_style_pad_all(panel, 7, 0)
+    panel?.setBorderColor(pixelInk)
+    panel?.setBorderWidth(4)
+    panel?.setPadding(7)
     return panel
 }
 
-func uiPixelMascotCreate(_ parent: OpaquePointer?, _ x: Int32, _ y: Int32) -> OpaquePointer? {
-    let mascot = lv_obj_create(parent)
-    lv_obj_remove_flag(mascot, LV_OBJ_FLAG_SCROLLABLE)
-    lv_obj_set_pos(mascot, x, y)
-    lv_obj_set_size(mascot, 38, 48)
-    lv_obj_set_style_bg_opa(mascot, UInt8(LV_OPA_TRANSP.rawValue), 0)
-    lv_obj_set_style_border_width(mascot, 0, 0)
-    lv_obj_set_style_pad_all(mascot, 0, 0)
+func uiPixelMascotCreate(_ parent: LVObject?, _ x: Int32, _ y: Int32) -> LVContainer? {
+    let mascot = LVContainer(parent: parent)
+    mascot?.removeScrollableFlag()
+    mascot?.setPosition(x: x, y: y)
+    mascot?.setSize(width: 38, height: 48)
+    mascot?.setBackgroundOpacity(UInt8(LV_OPA_TRANSP.rawValue))
+    mascot?.setBorderWidth(0)
+    mascot?.setPadding(0)
 
     _ = pixelBlock(mascot, 18, 0, 3, 6, pixelInk)
     _ = pixelBlock(mascot, 16, 0, 7, 3, pixelOrange)
@@ -108,20 +106,20 @@ func uiPixelMascotCreate(_ parent: OpaquePointer?, _ x: Int32, _ y: Int32) -> Op
     _ = pixelBlock(mascot, 30, 35, 5, 7, 0xB9F3FF)
     _ = pixelBlock(mascot, 8, 44, 9, 4, pixelInk)
     _ = pixelBlock(mascot, 21, 44, 9, 4, pixelInk)
-    swift_lvgl_mascot_start_blink(leftEye)
-    swift_lvgl_mascot_start_blink(rightEye)
+    LVMascotAnimation.startBlink(leftEye)
+    LVMascotAnimation.startBlink(rightEye)
     return mascot
 }
 
-func uiPixelMascotJump(_ mascot: OpaquePointer?) {
+func uiPixelMascotJump(_ mascot: LVObject?) {
     guard let mascot else {
         return
     }
-    swift_lvgl_mascot_jump(mascot)
+    LVMascotAnimation.jump(mascot)
 }
 
-func uiPixelSetSelected(_ panel: OpaquePointer?, _ selected: Bool, _ enabled: Bool) {
-    let color: UInt32 = enabled ? (selected ? uiYellow : pixelPaper) : 0x78909C
-    lv_obj_set_style_bg_color(panel, lv_color_hex(color), 0)
-    lv_obj_set_style_border_color(panel, lv_color_hex(selected ? 0xFFFFFF : pixelInk), 0)
+func uiPixelSetSelected(_ panel: LVObject?, _ selected: Bool, _ enabled: Bool) {
+    let color: UInt32 = enabled ? (selected ? LVColor.yellow._hexValue : pixelPaper) : 0x78909C
+    panel?.setBackgroundColor(color)
+    panel?.setBorderColor(selected ? 0xFFFFFF : pixelInk)
 }
