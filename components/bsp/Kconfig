@@ -1,0 +1,16 @@
+menu "AI Passport BSP"
+    config BSP_LVGL_TASK_STACK_SIZE
+        int "LVGL task stack size in bytes"
+        range 7168 32768
+        default 16384
+        help
+            Nested layout containers increase the recursive LVGL drawing stack.
+            The OpenSwiftUI List demo exceeds the port's 7168-byte default.
+
+    config BSP_USB_MIRRORING_ENABLED
+        bool "Enable USB display mirroring"
+        default y
+        help
+            Retains a bounded RGB565 row queue and a transmission task for
+            development-time screen mirroring.
+endmenu

@@ -18,6 +18,7 @@
 ## AI 工作流
 
 - [ai-guide.zh_CN.md](ai-guide.zh_CN.md)：AI 开发工作流（面向 AI 编程助手：上下文建立、需求拆解、BSP 边界、验收交付格式）。
+- [agent-monitor.zh_CN.md](agent-monitor.zh_CN.md)：第一阶段 Mac 到设备的 Codex Hooks、BLE 通信和真机验收。
 
 ## 工程约定（engineering）
 

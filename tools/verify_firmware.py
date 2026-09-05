@@ -4,7 +4,10 @@
 from __future__ import annotations
 
 import hashlib
+import re
+import shutil
 import struct
+import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -26,6 +29,8 @@ RECOVERY_OFFSET = 0x700000
 RECOVERY_SIZE = 0x100000
 ENTRY = struct.Struct("<HBBII16sI")
 RECOVERY_BOOT_MARKER = b"UP held: booting permanent recovery"
+SWIFT_VIEW_INPUT_SYMBOL = "_ViewInputsV14pushStableType"
+SWIFT_VIEW_INPUT_FRAME_LIMIT = 192
 
 
 @dataclass(frozen=True)
@@ -39,6 +44,82 @@ class Partition:
     @property
     def end(self) -> int:
         return self.offset + self.size
+
+
+def parse_nm_symbols(raw: str, marker: str) -> list[tuple[int, int, str]]:
+    """Return address, size, and name for defined ELF symbols containing marker."""
+    symbols: list[tuple[int, int, str]] = []
+    for line in raw.splitlines():
+        fields = line.split(maxsplit=3)
+        if len(fields) != 4 or marker not in fields[3]:
+            continue
+        try:
+            symbols.append((int(fields[0], 16), int(fields[1], 16), fields[3]))
+        except ValueError:
+            continue
+    return symbols
+
+
+def parse_riscv_stack_frame(raw: str) -> int:
+    """Read the entry basic block's `addi sp,sp,-N` frame allocation."""
+    match = re.search(r"\baddi\s+sp,sp,-(\d+)\b", raw)
+    return int(match.group(1)) if match else 0
+
+
+def validate_swift_view_input_frames(frame_sizes: list[int]) -> int:
+    if not frame_sizes:
+        raise ValueError("Swift View input stack-frame evidence is missing")
+    largest = max(frame_sizes)
+    if largest > SWIFT_VIEW_INPUT_FRAME_LIMIT:
+        raise ValueError(
+            "Swift View input stack frame is "
+            f"{largest} bytes; embedded limit is {SWIFT_VIEW_INPUT_FRAME_LIMIT}"
+        )
+    return largest
+
+
+def verify_swift_view_input_frames(build_dir: Path) -> None:
+    """Guard the ESP32-C3-specific stack adaptation using final RISC-V code.
+
+    OpenSwiftUI graph inputs are cheap attribute-backed values. EmbeddedSwiftUI
+    uses concrete inherited inputs, so firmware must keep their recursive helper
+    frames bounded independently of host tests.
+    """
+    elf_path = build_dir / "FoloToy-AI-Passport.elf"
+    nm = shutil.which("riscv32-esp-elf-nm")
+    objdump = shutil.which("riscv32-esp-elf-objdump")
+    if not elf_path.is_file() or nm is None or objdump is None:
+        raise ValueError("RISC-V ELF stack-frame tools or application ELF are missing")
+
+    nm_output = subprocess.run(
+        [nm, "-S", "--defined-only", str(elf_path)],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    symbols = parse_nm_symbols(nm_output, SWIFT_VIEW_INPUT_SYMBOL)
+    frame_sizes: list[int] = []
+    for address, size, _ in symbols:
+        disassembly = subprocess.run(
+            [
+                objdump,
+                "-d",
+                f"--start-address={address}",
+                f"--stop-address={address + min(size, 64)}",
+                str(elf_path),
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout
+        frame_sizes.append(parse_riscv_stack_frame(disassembly))
+
+    largest = validate_swift_view_input_frames(frame_sizes)
+    print(
+        "Swift View input frame: PASS "
+        f"({largest} / {SWIFT_VIEW_INPUT_FRAME_LIMIT} bytes, "
+        f"{len(frame_sizes)} specialization(s))"
+    )
 
 
 def parse_partition_table(raw: bytes) -> tuple[list[Partition], bool]:
@@ -158,8 +239,14 @@ def main() -> int:
         return 1
 
     try:
+        verify_swift_view_input_frames(build_dir)
         verify_recovery_contract(merged, build_dir)
-    except (OSError, UnicodeDecodeError, ValueError) as error:
+    except (
+        OSError,
+        subprocess.CalledProcessError,
+        UnicodeDecodeError,
+        ValueError,
+    ) as error:
         print(f"ERROR: {error}", file=sys.stderr)
         return 1
 

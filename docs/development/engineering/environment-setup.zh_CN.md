@@ -4,7 +4,7 @@
 
 # AI Agent 环境引导
 
-本文用于让 AI agent 在全新 checkout 中完成环境搭建，不依赖特定开发者的 shell 函数、绝对路径、IDE 或预装 ESP-IDF。项目要求 ESP32-C3 对应的 ESP-IDF 5.5.3 和 Swift 6.3.3。
+本文用于让 AI agent 在全新 checkout 中完成环境搭建，不依赖特定开发者的 shell 函数、绝对路径、IDE 或预装 ESP-IDF。项目要求 ESP32-C3 对应的 ESP-IDF 5.5.3 和支持 Embedded Swift 的 Swift 工具链。
 
 ## Agent 执行约束
 
@@ -89,17 +89,23 @@ brew install cmake ninja ccache dfu-util libusb python
 
 WSL2 可以执行 Linux 编译流程。烧录和监视需要把 USB 设备转发进 WSL；否则在 WSL 编译，在已激活 ESP-IDF 的原生 Windows 终端烧录。
 
-## 安装 Embedded Swift 6.3.3
+## 安装 Embedded Swift
 
-仓库通过 `.swift-version` 固定版本，并通过 Swiftly 解析实际编译器路径，CMake 不会误用不支持 RISC-V 的 Xcode Swift。先按 [Swift 官方安装说明](https://www.swift.org/install/) 安装 Swiftly，再安装并选中固定版本：
+设置 `CMAKE_Swift_COMPILER` 时，CMake 使用该编译器。Swiftly 为可选工具。请确认选中的编译器可用：
 
 ```bash
-swiftly install 6.3.3
-swiftly use 6.3.3
-swiftly use --print-location
+swiftc --version
 ```
 
-最后一条命令应输出已安装的 Swift 6.3.3 工具链目录。完成一次主机初始化后，checkout 无需安装项目内 Swift：`idf.py` 会按照已提交的 manifest 与 lockfile 自动下载固定版本的 `idf_swift` 组件。
+编译器未加入 `PATH` 时，在配置 CMake 时传入其绝对路径：
+
+```bash
+cmake -DCMAKE_Swift_COMPILER=/absolute/path/to/swiftc ...
+```
+
+编译器必须包含 `riscv32-none-none-eabi` 的 Embedded Swift 标准库；Xcode 自带的 Swift 未包含该库。通过 Swift.org macOS `.pkg` 安装器安装的工具链包含所需标准库。新建构建目录时，请在首次构建命令中传入该工具链的 `swiftc` 路径。
+
+`idf.py` 会按照已提交的 manifest 与 lockfile 自动下载固定版本的 `idf_swift` 组件。
 
 ## 安装 ESP-IDF 5.5.3
 

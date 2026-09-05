@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-// 初始化 SPI 总线、面板、厂商寄存器、背光 LEDC。成功后屏幕已上电但内容未定。
+// 初始化 SPI 总线、面板、厂商寄存器、背光 LEDC。成功后屏幕已上电，背光保持关闭。
 esp_err_t bsp_display_init(void);
 
 // 取底层面板句柄。想直接 esp_lcd_panel_draw_bitmap 画,或接 LVGL 以外的 GUI 时用。

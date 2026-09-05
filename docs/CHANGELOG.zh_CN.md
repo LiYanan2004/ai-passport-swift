@@ -6,6 +6,248 @@
 
 ## Unreleased
 
+- USB 屏幕投送提升为原生 240×320 RGB565，同时取消完整常驻帧缓冲。
+  `PMIRROW6` 使用约 12 KiB 的行分段队列，以每块 20 行的方式采集关键帧，隔离持续
+  动画产生的刷新，并在变化区域间轮换发送固定容量的增量分块，直接解码为 RGBA，无需按
+  像素格式分支。投屏可与 HTTPS、SwiftUI 绘制同时运行。
+
+- Wi-Fi 连接状态使用带动画的矢量信号点，Tibo 头像资源调整为与 View 尺寸一致的 100×100
+  RGB565。可缩放 RGB565 图片的资源尺寸与 View 不同时会执行一次受限缩放；图片圆形
+  裁切使用 LVGL 的逐行半径路径，无需 ARGB8888 图层。软件绘制会定期让出 CPU，保证
+  单核空闲任务能够处理看门狗。
+
+- 企业 Wi-Fi 凭据固定使用 EAP-TLS，主动扫描驻留时间调整为 120 ms，并记录扫描、
+  候选网络和断连原因日志。扫描结果缺少已配置 SSID 时，Station 会使用未固定信道和
+  BSSID 的配置凭据继续连接，使隐藏网络和短时未发现的网络仍可连接。中国部署会配置
+  经过 API 校验的 `CN` 国家代码并启用自动 802.11d 更新，使首次关联前也能扫描 2.4 GHz
+  的 12、13 信道。
+
+- 每个已配置网络都会保留扫描到的全部信道，并按 RSSI 顺序依次尝试。企业 WLAN
+  控制器可能广播无法直接关联的 BSSID，因此每个信道内由驱动选择可关联 AP。未固定
+  候选会正确保持 BSSID 和信道为空。一次完整连接轮次失败后按 5、10、30、60 秒退避；
+  成功连接或用户主动刷新会重置等待时间。
+
+- ESP32-C3 Station 配置提升为 6 个静态 RX、16 个动态 RX、16 个动态 TX、
+  12 个管理短缓冲区及 6 帧 RX BA 窗口。软件绘制 Shape 填充时会定期让出 CPU，
+  单核任务看门狗窗口调整为 15 秒，使正常的 LVGL 绘制和 TLS 运算可以完成，
+  避免产生看门狗报告。
+
+- 新增用于 ESP32-C3 的 Swift Tibo 重置追踪器。FreeRTOS 工作任务通过 HTTPS
+  访问 codex-resets.com 状态接口并校验证书；页面展示最近重置、计划重置或关注状态、
+  Tibo 最新 X 内容、GMT+8 时间、缓存与网络状态，支持 OK 键立即刷新，并按状态选择
+  三张存放在 Flash 的 RGB565 头像。`main` 下的应用及输入运行代码均使用 Swift，
+  `HeaderBridge.h` 是该组件唯一保留的 C 系列源码接口。追踪器配置会关闭 USB
+  屏幕投送并限制 Wi-Fi 缓冲区数量，为无 PSRAM 设备上的界面更新和 HTTPS 握手保留
+  足够的内部内存。
+
+- 将可选的 Wi-Fi 与 Wi-Fi RX 优化代码保留在 Flash，继续释放超过 27 KB 内部
+  RAM；默认接收缓冲数量保持不变，确保无 PSRAM 的 ESP32-C3 可以在
+  `esp_wifi_init()` 期间分配 DMA 缓冲。
+
+- 四个 Wi-Fi 信号点保持固定的 active/inactive 透明度，未激活的点保持 45% 透明度作为
+  可见占位符。连接过程中，每个点通过 LVGL 保留动画在两个透明度之间连续缓动，相邻点
+  间隔 130 ms，形成从左到右的波动，同时避免重复构建 View 树。
+
+- 将可复用硬件封装和 Wi-Fi 连接状态机从 `main/legacy/` 移至正式应用模块
+  `main/platform` 与 `main/wifi`。默认的无凭据构建会保持 Wi-Fi 射频关闭，并记录跳过
+  启动，不再创建网络任务。
+
+- 新增 EmbeddedSwiftUI 综合连接状态指示器，并将其设为 `PassportApplication`
+  默认页面。双层电量圆弧、蓝牙状态图标和四个 Wi-Fi 信号点会根据 CW2017 电量、
+  蓝牙控制器与 NimBLE 连接状态、当前 Wi-Fi RSSI 定时刷新。
+
+- 将双球加载动画从每 500 毫秒一次的定时状态更新改为单次创建、自动反向的 LVGL
+  动画。与完整 List 同时显示时会保留中间帧，每个半周期也无需重建整个应用 View
+  树。
+
+- 为组件内所有应用 Swift 源文件生成 EmbeddedSwiftUI 动态属性注册代码，确保新加
+  View 的 `State`、`Binding` 和环境属性可以正常保持；实体按键 modifier API
+  更正为 `onPhysicalButton`。
+
+- 恢复上游 `_UnaryViewAdaptor` 和 `ViewTypeVisitor` 构建入口。嵌入式 adaptor
+  直接转发 unary 构建，不增加 graph 或 renderer 节点。
+
+- 修复五项 EmbeddedSwiftUI 兼容性问题：嵌套 unary/custom modifier 保留配置中的
+  隐式根布局；State 的 body 捕获固定到原挂载；Stack 按优先级分组分配空间；
+  保留长动画时长，计时器量化移入 LVGLRendererAdaptor；嵌套及兄弟 eager 集合
+  共享有界展开预算。新增核心层及 LVGL 计时回归验证。
+
+- 修复双球加载动画和完整 EmbeddedSwiftUI List 同时渲染时反复重启的问题。
+  嵌入式 renderer 会在创建布局节点时逐步释放临时 display command，并在挂载
+  新 LVGL 树前释放构建产物。新增 command 生命周期及组合动画、输入、生命周期
+  回归验证。
+
+- 修复 EmbeddedSwiftUI modifier 属性安装、旧 Binding 生命周期、依赖 proposal 的
+  padding 和自定义对齐回调。新增类型化属性生命周期 box、独立 host 事务、
+  分离的显示/稳定身份及 eager ViewList 遍历元数据。平台配置提供隐式根布局。
+  LVGL 在重绘时保留目标未变化的活动动画，接受空路径并拒绝不支持的反射变换。
+  布局放置使用显式工作栈，16 KiB 门禁保持不变；补充嵌入式调整说明与回归覆盖。
+
+- 修复 Shape 在 opacity 动画中缩放时被裁成圆角矩形的问题；每次缩放更新都会
+  刷新父级 LVGL 离屏层边界。
+
+- 生产固件的 ESP-IDF C/C++ 代码改为按大小优化，实测应用镜像减少
+  53,104 字节，同时保留调试符号和运行时断言。
+
+- 修复 geometry effect 或 renderer effect 包装后的 View 无法正确应用
+  `zIndex(_:)` 的问题。Trait 现在会保留在 ViewList 根节点上，重叠的 LVGL
+  同级节点会随 z-index 变化正确切换前后顺序。
+
+- 修复完整 EmbeddedSwiftUI List 更新耗尽 ESP32-C3 栈与堆的问题。Identity scope
+  改为保留嵌套 display list，解析和 LVGL 挂载使用显式帧栈，布局只接收度量
+  Provider，renderer 元数据不再通过 Dictionary COW 重建，输入更新会被合并，
+  Circle 裁剪使用 LVGL 原生圆角。所有嵌入式特有差异均由静态检查强制保留
+  `Embedded adaptation:` 源码注释。
+
+- 通过写时复制的 View 输入和不可变共享 builder pair 存储，降低 EmbeddedSwiftUI
+  递归构建的栈占用；分支环境、事务、状态安装和结构身份语义保持不变。新增带保护页的
+  16 KiB LVGL 主机栈回归，覆盖完整 List 示例及重复动画/滚动更新。
+
+- 扩展 EmbeddedSwiftUI 的同步 OpenSwiftUI 兼容实现：加入编译期动态属性注册、
+  嵌套 `@State`、`Binding`、环境键、显式/keyed View 身份、按身份处理的生命周期
+  与滚动恢复、局部动画事务，以及 LVGL 挂载前的 proposal 布局。
+  修复根 trait modifier 构建、自定义 modifier 计数、背景尺寸和非正方形椭圆。
+  平台度量/默认值和图片解析由适配层提供，SwiftSyntax 生成工具只在构建主机运行。
+
+- PassportMirroring toolbar 新增截图和 H.264 录屏按钮。截图与录屏使用原始
+  240 × 320 投屏帧。录屏会立即写入临时文件，停止后再选择目标位置；取消或
+  保存失败时删除临时文件，确认保存时移动录屏结果。
+
+- EmbeddedSwiftUI 按照 upstream geometry effect 流程新增 `rotationEffect`。
+  该修饰符保持原布局测量结果，并将角度和锚点映射为 LVGL 图层旋转，同时支持
+  溢出边界和隐式动画。
+
+- 新增与 upstream 兼容的 `_ViewTraitKey` 和 `ViewTraitCollection` 基础能力。
+  EmbeddedSwiftUI 现在无需 AttributeGraph 即可保存、覆盖、读取默认值及合并
+  强类型容器 trait。
+
+- EmbeddedSwiftUI 新增与 upstream 兼容的 `zIndex(_:)` trait。同步布局保持源码
+  顺序计算位置，并按稳定的 z-index 升序绘制重叠同级视图；LVGL 重叠容器采用
+  相同顺序。该修饰符现在通过通用 `_TraitWritingModifier` 和
+  `ViewTraitCollection` 写入 `ZIndexTraitKey`。
+
+- 优化抖音双球加载指示器，采用更顺滑的水平交错曲线，并同步切换前后层级，
+  同时保留青色与红色圆点的大小和透明度交换效果。连续动画事务现在会在切换
+  z-index 顺序前读取 LVGL 当前呈现状态，避免两球展开时从过期帧发生跳变。
+
+- 单屏 EmbeddedSwiftUI 入口现与上游 App 宿主模式对齐，并省略 Scene 层。
+  `LVGLHostingController` 会绑定当前 LVGL display，每次渲染根据其逻辑分辨率
+  重新创建 `RootGeometry`、应用安全区内容范围，并在 display 分辨率变化时自动
+  标记需要重新布局。
+
+- 修复 `List` 和 `ForEach` 的实体按键传递。未处理的按键现在会沿实际内容返回，
+  不再读取原始视图的 `Never` body 并触发非法指令崩溃。
+
+- 修复 Shape 效果持续动画期间触发任务看门狗的问题。缩放和分层透明度缓冲区改为
+  覆盖实际溢出子树，不再覆盖整屏；Shape 边集合与扫描线交点存储也会跨帧复用。
+  原有溢出显示和裁剪行为保持不变。
+
+- EmbeddedSwiftUI 新增 `opacity(_:)` 渲染效果，支持嵌套透明度相乘、完全透明时
+  停止响应按键，以及隐式动画。LVGL renderer 会通过分层透明度作用于合成后的
+  整个子树。
+
+- 修复抖音双球加载指示器在设备上保持静止的问题。动画改用 LVGL 可插值的不同
+  起止状态和自动反向循环，应用定时器也会处理视图出现时触发的状态更新。
+
+- EmbeddedSwiftUI renderer 现已支持 `onAppear`、`onDisappear` 和带锚点的
+  `scaleEffect` 修饰符。`frame` 与 `offset` 现可接收
+  `Double` 参数，并将校验后的尺寸四舍五入为物理像素。LVGL 定时器现在可在
+  自身回调中安全失效。
+
+- 避免 LCD 启动时闪过未初始化的白色和黑色画面。背光控制现在会在面板初始化前
+  完成配置，并保持关闭，直到 LVGL 同步绘制出完整的应用首帧。
+
+- 将平台无关的 retained renderer 合并到 `OpenSwiftUI` 模块。package 和固件现在只
+  构建 `OpenSwiftUI` 与 `LVGLRendererAdaptor` 两个 target。
+
+- 为嵌入式 OpenSwiftUI 新增与 SwiftUI API 形态一致的 `Spacer(minLength:)`。
+  栈布局会将剩余建议尺寸分配给 Spacer，同一布局中的多个 Spacer 也会参与分配。
+
+- 修复 ESP32-C3 上 OpenSwiftUI 的 Shape 填充、曲线描边和非矩形
+  `clipShape` 蒙版渲染。曲线填充改为连续扫描线区域，消除了原三角扇形产生的
+  放射状接缝；同时启用 LVGL 的复杂软件绘制、ARGB8888 中间层和 A8 蒙版缓冲区。
+  ST7789 显示屏继续使用 RGB565 输出。
+
+- 修复嵌套 View 修饰符导致的 OpenSwiftUI 启动重启：根 View 的构造与首次挂载改在
+  LVGL 定时器任务中执行，和按键触发的重绘使用同一任务。
+
+- 修复静止画面导致 USB 投屏误断开的问题。macOS 接收端将已连接后的完整帧
+  超时调整为七秒，覆盖固件五秒的空闲关键帧周期；保留三秒首帧超时，
+  串口错误仍立即触发断开。
+
+- 新增与 SwiftUI 一致的 `clipped(antialiased:)` 和 `clipShape(_:style:)` 修饰符，支持同步 `Path` 裁剪传递、LVGL 原生矩形和圆角裁剪，以及有内存上限的当前 View 局部 A8 自定义形状蒙版。
+
+- 修复 LVGL retained renderer 中 `offset` 位于背景内时扩大背景的问题。
+  背景保持原 frame 尺寸，仅内容绘制位置偏移。
+
+- OpenSwiftUI 动画现在会在两次渲染之间对结构一致的 LVGL 节点位置、宽高和背景
+  RGBA 进行插值。`offset` 会从旧值移动到新值，不会重新定位兄弟视图，也不会被
+  原始 bounds 裁剪。滚动容器继续按视口裁剪；视图树结构变化时继续使用淡入淡出过渡。
+
+- 新增 LVGL USB 实时投屏与最小 PassportMirroring macOS 接收程序。
+  数据流采用 RGB332，保留 240×320 分辨率，支持自动连接、断线重连、逐行压缩和
+  数据校验；默认上限为 30 fps，可配置为 60 fps，并通过变化行传输和周期关键帧
+  降低带宽、恢复丢包。macOS App 提供等待设备、正在连接、已连接和 USB 已释放
+  状态界面，支持手动重连，并在缩放时保持内容区域为 3:4；刷机模式可在不关闭
+  App 的情况下释放串口。
+
+- 将 OpenSwiftUI 演示扩展为可滚动的能力画廊，覆盖字体、颜色、栈布局、frame、
+  padding、背景、offset、形状填充与描边、裁剪、条件内容及范围 `ForEach`。
+  每次按 OK 时会切换面板状态并播放动画，同时保留 List 及其滚动位置。能力画廊
+  使用分组行和原生圆角裁剪，确保首次启动和动画替换保持在 ESP32-C3 的 LVGL
+  内存预算内。
+
+- Embedded OpenSwiftUI 源码已与参考文件对齐，记录 Text 和 RenderSink
+  兼容适配并增加源码检查，同时保留现有 List、ScrollView、ForEach 实现。
+
+- 新增 Embedded Shape 渲染链路：支持浮点 `Path` 命令、`Shape`/`ShapeStyle`、
+  `FillStyle`/`StrokeStyle`、矩形、圆角矩形、胶囊、椭圆、圆，以及 `fill`、
+  `stroke`、`strokeBorder` 和 `InsettableShape`。同步 sink、visitor、
+  `EmbedRenderer` 与有界 LVGL draw-event 后端已同步支持 Shape；实现不使用整屏
+  Canvas 或 ThorVG。
+
+- 补齐嵌入式 OpenSwiftUI transaction 与动画路径：新增 `Transaction`、
+  `withTransaction`、按值跟踪的 `View.animation(_:value:)`、顺序敏感的
+  delay/speed 组合、三次 Bézier 与弹簧计算、repeat/autoreverse 执行，以及替换和
+  卸载时的 LVGL 动画取消与资源清理。
+
+- 将嵌入式 OpenSwiftUI API 与所提供的 `OpenSwiftUICore/Embedded` 实现对齐，新增
+  自定义 `Layout`、`LayoutSubviews`、栈布局、任意 View 背景、偏移和严格的布局参数
+  校验；`ScrollView` 采用标准 API 形状，并支持同步渲染 Sink 的测量与裁剪。
+
+- 新增与参考固件接口一致的 OpenSwiftUI 兼容渲染路径：支持根 View 中保留的
+  `@State`、静态 `Image`、作为 View 使用的 `Color`、`foregroundStyle`、
+  物理按键处理、测量式布局、同步渲染 Sink 和 `EmbeddedViewHost`。
+
+- 将嵌入式 UI 拆分为三个 package target：`OpenSwiftUI`、平台无关的
+  `EmbedRenderer` 和 `LVGLRendererAdaptor`。通用 LVGL UI 包装与 Bridge 已迁入
+  adaptor，当前固件 target 只编译显示 `OpenSwiftUIDemoView` 所需的文件，原应用页面
+  与服务统一隔离到 `main/legacy`。
+
+- 为 OpenSwiftUI 应用新增顶层 RGB565 屏幕截图 API，包含 LVGL 加锁、明确的缓冲区生命周期和内存分配失败返回值；新增尚未接入业务的 BLE 截图服务，可识别专用指令，并返回元信息、按 MTU 分片的数据和 CRC32。
+
+- 修复 OpenSwiftUI 启动循环：嵌套绘制超过 LVGL 默认 7 KiB 栈。BSP 改用可配置的 16 KiB 任务栈，要求已有配置的 LVGL 内存池至少为 48 KiB，并定期记录 UI 栈余量和剩余堆内存。
+
+- 扩展嵌入式 OpenSwiftUI：新增 List、ScrollView、范围 ForEach、ZStack、动画值、显式 `withAnimation` 切换、物理按键处理、字体、对齐及按顺序组合的样式与布局修饰符。`App.body` 简化为直接返回根 View，不再经过 Scene 或 WindowGroup；平台初始化放入具体 App 的初始化方法，LVGL adaptor 的 `App.main()` 直接挂载 UI；输入通过队列交给 UI 线程，并新增真实 LVGL 后端测试。
+
+- 新增 OpenSwiftUI 嵌入式源码子集和独立 `EmbedRenderer` target。固件启动后进入
+  声明式计数器，支持 UP/DOWN 调整、OK 清零和长按 OK 返回 Agent Monitor。
+  新增限制节点数量的 LVGL 子树渲染、Embedded Swift 主机测试和启动页面配置项。
+
+- 优化 Agent Monitor UI 和 Codex 实时限额：仪表盘现在在中间显示会随状态变化的机器人，并显示 5h/1w 已用量进度条，进度条按绿、蓝、黄、红变化；有正数重置次数时显示该数量。连接页面移除机器人和按键操作提示。打开蓝牙页面后会自动开始首次配对广播，页面只显示大号验证码或 `CONNECTED`。已配对 Mac 的 bridge 会异步读取本机已登录 Codex app-server 的限额，并通过已认证 BLE 链路只返回简短限额数值。
+
+- 主菜单改为第一阶段 Agent Monitor：Mac CoreBluetooth bridge 将简短的 Codex Hook 生命周期状态通过可连接 NimBLE GATT 服务发到设备，设备以无边框仪表盘显示一个焦点 session，并预留紧凑的 TOKENS 与 RESETS 指标，UP/DOWN 切换已保留 session，独立音频任务在权限请求时播放高音三连提示、在任务完成时播放低音双音提示。新增 Mac bridge、Hook 模板、协议和安全边界文档，以及 session 状态主机测试。
+
+- 新增本机 `CONNECT` 菜单、只显示已知 Wi-Fi 的扫描页和 Agent Monitor 单 Mac 安全所有者。设备生成准确的公开 BLE 名称，必须在设备本机开启配对、输入六位验证码后才能完成已认证 Secure Connections 配对；固件保存一个所有者 bond，后续通过控制器白名单过滤连接请求，并且只通过已认证、已加密、128 位密钥的链路接收任务状态。Mac bridge 现在必须传入准确设备名后才会扫描并连接。
+
+- 主页改为横向分页 App 轮播：每个现有 View Controller 页面都有标题和一行功能说明，上下键会带动卡片向左或向右移动，确认键进入选中页面，白色圆点与蓝色选中态标记当前位置，并与原有右下角机器人动画同一行。共享状态栏持续显示在各页面顶部，保留 Wi-Fi 状态，重绘并居中 Bluetooth 图标，并加入更宽、更矮且带实心端头的电量条。
+
+- 修复 LVGL 主题裁剪后的背景透明问题：所有视图设置背景色时都会设为完全不透明，深色界面的标签默认使用白色文字。
+
+- 重新设计设备端界面：英文状态栏、页签和单个焦点内容卡作为主界面；独立控制中心提供大尺寸 Wi-Fi 与 Bluetooth 卡片，并明确显示焦点、详情入口和关闭操作。全局配色改为黑色背景、白色文字、深色卡片和低饱和青绿色选中状态。
+
+- 新增开机自动连接 Wi-Fi：在耗时较长的外设检查前启动，单次扫描后复用匹配信道，并按配置顺序连接第一个可见的普通密码或 EAP-TLS 候选网络。个人网络在切换候选前快速重试同一候选的认证；Wi-Fi 扫描页保留扫描入口，首页以高对比度图标显示已连接、连接中和未连接状态。本地凭据继续排除在 Git 之外。
+
 - 将应用页面迁移至 Embedded Swift 6.3.3，保留 BSP 初始化、按键分发、功能菜单和低功耗页面；同时固定 Espressif 官方 `idf_swift` 组件版本以保证构建结果可复现。
 
 - 加入厂家为优特利 520mAh 电芯生成的 80 字节 CW2017 profile，并实现内容与更新标志检查、写入后校验、规定的重启时序以及有上限的 SOC 就绪等待。

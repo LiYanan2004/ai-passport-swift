@@ -1,0 +1,18 @@
+menu "AI Passport application"
+    config APP_EMBEDDED_SWIFTUI_DEMO
+        bool "Start the EmbeddedSwiftUI demo"
+        default y
+        select LV_USE_FLEX
+        select LV_USE_IMAGE
+        select LV_FONT_MONTSERRAT_12
+        select LV_FONT_MONTSERRAT_14
+        select LV_FONT_MONTSERRAT_16
+        select LV_FONT_MONTSERRAT_18
+        select LV_FONT_MONTSERRAT_20
+        select LV_FONT_MONTSERRAT_24
+        select LV_FONT_MONTSERRAT_28
+        help
+            Run the declarative App/WindowGroup MVP. OK switches between List
+            and ScrollView; UP/DOWN scroll. Long OK returns to List. This is the
+            only application configuration currently included in the build.
+endmenu

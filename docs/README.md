@@ -18,25 +18,32 @@ The table below describes the application capabilities implemented by the curren
 
 | Capability | Confirmed implementation | Application interface | Boundaries that must be respected |
 | --- | --- | --- | --- |
-| Display | ST7789P3, 240 × 320 portrait RGB565, SPI2 at 40 MHz; LEDC backlight | `bsp_display_*`, `bsp_lvgl_*` | The ESP32-C3 has no PSRAM; the current design uses a small single DMA buffer; the BSP exposes no LCD MISO, touch, or TE interface |
+| Display | ST7789P3, 240 × 320 portrait RGB565, SPI2 at 40 MHz; LEDC backlight | `main/legacy/platform/hardware/Display.swift`, `bsp_lvgl_*` | The ESP32-C3 has no PSRAM; the current design uses a small single DMA buffer; the BSP exposes no LCD MISO, touch, or TE interface |
 | Input | `UP`, `DOWN`, and `OK` share an ADC resistor ladder on GPIO0 | `bsp_button_init()`, `bsp_button_read_mv()` | Callbacks run in the button component task and must not block; do not create a second ADC1 unit |
-| Audio | ES8311 with full-duplex PCM over I2S0, supporting playback and microphone capture | `bsp_audio_*` | PCM reads and writes block and belong in a worker task; format changes must retain the BSP close/open sequence |
-| Battery | CW2017 state-of-charge and voltage readings | `bsp_battery_*` | This capability is optional at runtime; accuracy depends on the cell and battery profile and is not equivalent to a calibrated result |
-| Wi-Fi | On-demand 2.4 GHz STA scan demo | `main/pages/LVWiFiViewController.swift` | Scans only; it does not connect, store credentials, or validate antenna/RF performance |
-| Bluetooth LE | On-demand non-connectable NimBLE advertising as `FoloPassport` | `main/pages/LVBluetoothViewController.swift` | ESP32-C3 does not support Bluetooth Classic; radio range, coexistence, and power draw require device measurements |
-| Low power | Two-second light sleep and five-second deep sleep, both with RTC timer wakeup | `main/pages/LVLowPowerViewController.swift` | Deep sleep restarts the application; the current demo exposes RTC timer wake only |
+| Audio | ES8311 with full-duplex PCM over I2S0, supporting playback and microphone capture | `main/legacy/platform/hardware/Speaker.swift`, `main/legacy/platform/hardware/Microphone.swift` | PCM reads and writes block and belong in a worker task; format changes must retain the BSP close/open sequence |
+| Battery | CW2017 state-of-charge and voltage readings | `main/legacy/platform/hardware/Battery.swift` | This capability is optional at runtime; accuracy depends on the cell and battery profile and is not equivalent to a calibrated result |
+| Wi-Fi | On-demand 2.4 GHz STA scan page that displays only SSIDs configured in the firmware | `main/legacy/platform/hardware/WiFi.swift`, `main/legacy/wifi/WiFiConnectionController.swift` | Secrets belong only in ignored `main/legacy/config/WiFiCredentials.local.swift`; antenna/RF performance and Wi-Fi/BLE coexistence require device measurements |
+| Bluetooth LE | Boot-time NimBLE `AgentMonitor` service with locally authorized first pairing, one persistent Mac bond, and encrypted task-status writes | `main/legacy/platform/hardware/Bluetooth.swift`, `main/legacy/agentmonitor/AgentMonitorBLETransport.swift` | ESP32-C3 does not support Bluetooth Classic; keep the owner bond for a presentation; radio range, coexistence, and power draw require device measurements |
+| Low power | Two-second light sleep and five-second deep sleep, both with RTC timer wakeup | `main/legacy/platform/hardware/SleepManager.swift` | Deep sleep restarts the application; the current demo exposes RTC timer wake only |
 | Shared bus | ES8311 and CW2017 share I2C0 | `bsp_i2c_*` | Every device must reuse the bus owned by the BSP; do not create another bus on the same port for scanning or a new device |
 | Logging and flashing | Native ESP32-C3 USB Serial/JTAG | ESP-IDF console | GPIO18/19 are reserved for USB; the default UART0 TX on GPIO21 conflicts with the backlight |
 
 All pins, addresses, panel parameters, and button voltage windows are defined only in [`components/bsp/include/bsp_pins.h`](../components/bsp/include/bsp_pins.h). Application code must not duplicate these constants. See the [AI Hardware Development Guide](hardware-design/AI_HARDWARE_DEVELOPMENT_GUIDE.md) for the complete pin map, panel initialization, ADC thresholds, I2C addressing rules, audio clocks, and memory details.
 
-Applications may also use ESP-IDF timers, FreeRTOS tasks, and internal Flash/NVS; the Pomodoro branch contains an NVS example. Wi-Fi and Bluetooth LE remain ESP-IDF application services rather than BSP APIs: their menu pages initialize each stack only while open and release it on exit. `demo/claude-buddy-port` remains a fuller BLE application architecture reference, not a substitute for measuring the current board's antenna, RF performance, power consumption, and coexistence behavior. The current product and firmware baseline uses 8 MB Flash with a 3 MB factory-app partition plus fixed protected identity and permanent-Recovery regions so derivative firmware stays installable through the mini-program.
+Applications may also use ESP-IDF timers, FreeRTOS tasks, and internal Flash/NVS; the Pomodoro branch contains an NVS example. Wi-Fi and Bluetooth LE remain ESP-IDF application services rather than BSP APIs. The previous Agent Monitor implementation is archived under `main/legacy` and is not part of the current MVP build. See [Agent Monitor](development/agent-monitor.md) for its pairing, hook setup, protocol, and physical-device acceptance. Its ignored local credentials belong at `main/legacy/config/WiFiCredentials.local.swift`. `demo/claude-buddy-port` remains a fuller BLE application architecture reference, not a substitute for measuring the current board's antenna, RF performance, power consumption, and coexistence behavior. The current product and firmware baseline uses 8 MB Flash with a 3 MB factory-app partition plus fixed protected identity and permanent-Recovery regions so derivative firmware stays installable through the mini-program.
 
 ### Capabilities outside the current contract
 
 The public firmware contract is limited to the interfaces listed above. Do not infer additional board interfaces from the ESP32-C3 feature list. New hardware interfaces require an explicit BSP definition and on-device acceptance criteria.
 
 ## Start development with one requirement
+
+The [USB mirroring MVP](development/engineering/usb-mirroring.md) streams the LVGL
+screen to the PassportMirroring macOS app over the native USB connection.
+
+The current MVP starts an [EmbeddedSwiftUI demo](development/engineering/embedded-swiftui.md).
+That guide documents the two-module source subset, build commands, supported API
+surface and the preserved Agent Monitor build option.
 
 A simple request can be given directly to an AI assistant:
 
@@ -98,7 +105,7 @@ Example branches may change the same menu, configuration, or driver in incompati
 ```text
 components/bsp/include/  Public BSP APIs and bsp_pins.h hardware facts
 components/bsp/src/      Display, button, audio, battery, and shared-I2C implementations
-main/                    Minimal menu, LVGL UI, and independent hardware demo pages
+main/                    OpenSwiftUI MVP; previous application code is isolated in main/legacy/
 tests/                   Lightweight logic tests that can run without hardware
 tools/                   Shared local/CI validation and firmware verification scripts
 docs/                    Project docs, changelog, engineering/contribution rules, and design references

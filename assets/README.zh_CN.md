@@ -24,6 +24,20 @@
 - 许可允许时保留可编辑源文件，并记录来源与许可。
 - 图片中不得包含设备二维码秘密、凭证或个人数据。
 
+### Tibo 重置追踪器头像
+
+追踪器使用项目所有者提供的三张方形头像：
+
+| 源文件 | UI 状态 | 原始尺寸 | 固件资源 |
+| --- | --- | --- | --- |
+| `images/tibo-reset-confirmed.png` | 最近 24 小时内确认重置 | 374 × 374 | `main/assets/tibo-reset-confirmed.rgb565` |
+| `images/tibo-reset-announced.jpg` | 已计划重置或正在关注 | 400 × 400 | `main/assets/tibo-reset-announced.rgb565` |
+| `images/tibo-reset-idle.jpg` | 等待、普通或服务不可用 | 1290 × 1290 | `main/assets/tibo-reset-idle.rgb565` |
+
+每份固件资源均缩放为 100 × 100，并保存为 16 位 RGB565 格式（20,000
+字节）。CMake 将数据链接到 Flash，Swift 负责持有 LVGL 图片描述符并按状态选择头像。
+这些文件由项目所有者提供并用于本次集成；公开发布前需确认再分发条款。
+
 ## 音乐与音效（music）
 
 可复用的音乐与音效源码放在 `music/`。

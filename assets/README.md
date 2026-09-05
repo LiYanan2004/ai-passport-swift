@@ -26,6 +26,21 @@ Store reusable source images and generated display assets in `images/`.
 - Preserve editable sources where licensing permits, and record the source and license.
 - Never commit device QR secrets, credentials, or personal data in images.
 
+### Tibo reset tracker avatars
+
+The tracker uses three project-owner-provided square portraits:
+
+| Source asset | UI state | Original size | Firmware asset |
+| --- | --- | --- | --- |
+| `images/tibo-reset-confirmed.png` | Reset confirmed within 24 hours | 374 × 374 | `main/assets/tibo-reset-confirmed.rgb565` |
+| `images/tibo-reset-announced.jpg` | Scheduled reset or active watch | 400 × 400 | `main/assets/tibo-reset-announced.rgb565` |
+| `images/tibo-reset-idle.jpg` | Waiting, normal, or unavailable | 1290 × 1290 | `main/assets/tibo-reset-idle.rgb565` |
+
+Each firmware asset is resized to 100 × 100 and stored as 16-bit RGB565
+(20,000 bytes). CMake links the bytes into Flash, and Swift owns the LVGL image
+descriptors and state selection. The files were supplied by the project owner
+for this integration; confirm public redistribution terms before a release.
+
 ## Music and sound effects
 
 Store reusable music and sound-effect sources in `music/`.

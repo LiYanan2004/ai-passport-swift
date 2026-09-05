@@ -30,11 +30,13 @@ target 或已跟踪 defaults 时，先保留有意的本地设置，再运行
 仓库提交 `dependencies.lock` 以固定 ESP-IDF Managed Components 的解析结果。修改 `idf_component.yml` 后必须使用 ESP-IDF 5.5.3 重新生成锁文件、review 版本变化并与 manifest 一起提交；普通构建不应产生未提交的锁文件差异。
 
 固件门禁使用全新的临时构建目录，并从仓库 `sdkconfig.defaults` 生成隔离的 `sdkconfig`。它不会读取或覆盖开发者根目录的 `sdkconfig`，只把验证通过的合并镜像复制到 `build/FoloToy-AI-Passport-full.bin`。门禁同时强制检查[小程序 BLE 兼容契约](ble-recovery-compatibility.zh_CN.md)：保护分区地址、应用大小、分区表 MD5、保护区数据不入包，以及 Recovery bootloader hook。
+对于 EmbeddedSwiftUI 构建，同一门禁还会检查最终 RISC-V 指令，并拒绝过大的递归
+View 输入栈帧。
 
 当前基线含一个可独立运行的纯逻辑测试：
 
 ```bash
-swiftc main/ui/UIPixelMath.swift tests/TestUIPixelMath.swift \
+swiftc main/legacy/ui/UIPixelAnimation.swift tests/TestUIPixelMath.swift \
   -o /tmp/test_ui_pixel_math
 /tmp/test_ui_pixel_math
 ```

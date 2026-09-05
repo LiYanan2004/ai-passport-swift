@@ -4,6 +4,7 @@
 #include "bsp_pins.h"
 #include "esp_lvgl_port.h"
 #include "esp_log.h"
+#include "bsp_usb_mirroring.h"
 
 static const char *TAG = "bsp_lvgl";
 
@@ -16,7 +17,10 @@ lv_display_t *bsp_lvgl_init(void) {
         return NULL;
     }
 
-    const lvgl_port_cfg_t pc = ESP_LVGL_PORT_INIT_CONFIG();
+    lvgl_port_cfg_t pc = ESP_LVGL_PORT_INIT_CONFIG();
+    // Nested SwiftUI layout wrappers increase LVGL's recursive draw depth.
+    // The port's 7 KiB default overflows while drawing the initial List.
+    pc.task_stack = CONFIG_BSP_LVGL_TASK_STACK_SIZE;
     if (lvgl_port_init(&pc) != ESP_OK) {
         ESP_LOGE(TAG, "lvgl_port_init 失败");
         return NULL;
@@ -39,6 +43,16 @@ lv_display_t *bsp_lvgl_init(void) {
     };
     s_disp = lvgl_port_add_disp(&dc);
     if (!s_disp) { ESP_LOGE(TAG, "lvgl_port_add_disp 失败"); return NULL; }
+
+#if CONFIG_BSP_USB_MIRRORING_ENABLED
+    if (bsp_lvgl_lock(0)) {
+        esp_err_t mirror_result = bsp_usb_mirroring_init(s_disp);
+        bsp_lvgl_unlock();
+        if (mirror_result != ESP_OK) {
+            ESP_LOGW(TAG, "USB mirroring unavailable: %s", esp_err_to_name(mirror_result));
+        }
+    }
+#endif
 
     ESP_LOGI(TAG, "LVGL 就绪");
     return s_disp;

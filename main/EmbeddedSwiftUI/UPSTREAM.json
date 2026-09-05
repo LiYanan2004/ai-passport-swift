@@ -1,0 +1,409 @@
+{
+  "repository": "https://github.com/OpenSwiftUIProject/OpenSwiftUI",
+  "revision": "acee5c44efea03d09031779bffdb42e273b93e2d",
+  "branch_at_import": "wasi/playground",
+  "license": "MIT",
+  "scope": "OpenSwiftUI View architecture adapted for synchronous Embedded Swift, with LVGL integration isolated in LVGLRendererAdaptor",
+  "embedded_reference": [
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedAlignment.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedBackground.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedColor.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedEdgeInsets.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedFrame.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedHStack.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedImage.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedLayout.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedLayoutSubviews.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedLayoutView.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedOffset.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedOptionalView.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedPadding.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedPhysicalButton.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedProposedViewSize.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedRect.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedRenderer.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedRenderSink.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedRootGeometry.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedSize.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedStackLayout.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedState.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedText.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedViewHost.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedViewPair.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedVStack.swift",
+    "Sources/OpenSwiftUICore/Embedded/EmbeddedZStack.swift"
+  ],
+  "files": {
+    "Animatable.swift": [
+      "Sources/OpenSwiftUICore/Animation/Animatable/Animatable.swift",
+      "Sources/OpenSwiftUICore/Animation/Animatable/VectorArithmetic.swift"
+    ],
+    "View.swift": [
+      "Sources/OpenSwiftUICore/View/View.swift",
+      "Sources/OpenSwiftUICore/View/Never+View.swift"
+    ],
+    "ViewInputs.swift": [
+      "Sources/OpenSwiftUICore/View/Input/ViewInputs.swift"
+    ],
+    "ViewIdentity.swift": [
+      "Sources/OpenSwiftUICore/View/Input/ViewList.swift",
+      "Sources/OpenSwiftUICore/View/DynamicView/IDView.swift",
+      "Sources/OpenSwiftUICore/Render/DisplayList/DisplayList_StableIdentity.swift"
+    ],
+    "DynamicProperty.swift": [
+      "Sources/OpenSwiftUICore/Data/DynamicProperty/DynamicProperty.swift",
+      "Sources/OpenSwiftUICore/Data/DynamicProperty/DynamicPropertyBuffer.swift",
+      "Sources/OpenSwiftUICore/View/Graph/ViewGraph.swift"
+    ],
+    "State.swift": [
+      "Sources/OpenSwiftUICore/Data/State/State.swift",
+      "Sources/OpenSwiftUICore/Data/State/StoredLocation.swift",
+      "Sources/OpenSwiftUICore/Data/Binding/Binding.swift"
+    ],
+    "DisplayListLayout.swift": [
+      "Sources/OpenSwiftUICore/Modifier/ViewModifier/AppearanceActionModifier.swift",
+      "Sources/OpenSwiftUICore/Animation/Animation/AnimationModifier.swift",
+      "Sources/OpenSwiftUICore/Layout/Layout.swift",
+      "Sources/OpenSwiftUICore/Render/DisplayList/DisplayList.swift"
+    ],
+    "RendererConfiguration.swift": [
+      "Sources/OpenSwiftUICore/Render/RendererConfiguration.swift",
+      "Sources/OpenSwiftUICore/Util/CoreGlue.swift"
+    ],
+    "ViewOutputs.swift": [
+      "Sources/OpenSwiftUICore/View/Input/ViewOutputs.swift"
+    ],
+    "ViewList.swift": [
+      "Sources/OpenSwiftUICore/View/Input/ViewList.swift",
+      "Sources/OpenSwiftUICore/View/View.swift"
+    ],
+    "DisplayList.swift": [
+      "Sources/OpenSwiftUICore/Render/DisplayList/DisplayList.swift"
+    ],
+    "ViewBuilder.swift": [
+      "Sources/OpenSwiftUICore/View/ViewBuilder.swift"
+    ],
+    "ViewModifier.swift": [
+      "Sources/OpenSwiftUICore/Modifier/ViewModifier.swift",
+      "Sources/OpenSwiftUICore/Modifier/CustomViewModifier.swift"
+    ],
+    "Environment.swift": [
+      "Sources/OpenSwiftUICore/Data/Environment/EnvironmentValues.swift",
+      "Sources/OpenSwiftUICore/Data/Environment/EnvironmentKeyWritingModifier.swift"
+    ],
+    "RendererEffect.swift": [
+      "Sources/OpenSwiftUICore/Render/RendererEffect/RendererEffect.swift"
+    ],
+    "Layout.swift": [
+      "Sources/OpenSwiftUICore/Layout/Layout.swift"
+    ],
+    "LayoutSubviews.swift": [
+      "Sources/OpenSwiftUICore/Layout/Layout.swift"
+    ],
+    "RenderTypes.swift": [
+      "Sources/OpenSwiftUICore/Layout/Geometry/Axis.swift"
+    ],
+    "ViewTrait.swift": [
+      "Sources/OpenSwiftUICore/View/ViewTrait.swift"
+    ],
+    "Background.swift": [
+      "Sources/OpenSwiftUICore/Modifier/ViewModifier/BackgroundModifier.swift",
+      "Sources/OpenSwiftUICore/Embedded/EmbeddedBackground.swift"
+    ],
+    "Frame.swift": [
+      "Sources/OpenSwiftUICore/Layout/Modifier/FrameLayout.swift",
+      "Sources/OpenSwiftUICore/Embedded/EmbeddedFrame.swift"
+    ],
+    "Padding.swift": [
+      "Sources/OpenSwiftUICore/Layout/Modifier/PaddingLayout.swift",
+      "Sources/OpenSwiftUICore/Embedded/EmbeddedPadding.swift"
+    ],
+    "Offset.swift": [
+      "Sources/OpenSwiftUICore/Render/GeometryEffect/OffsetEffect.swift",
+      "Sources/OpenSwiftUICore/Embedded/EmbeddedOffset.swift"
+    ],
+    "ConditionalContent.swift": [
+      "Sources/OpenSwiftUICore/View/ConditionalContent.swift",
+      "Sources/OpenSwiftUICore/View/OptionalView.swift",
+      "Sources/OpenSwiftUICore/View/EmptyView.swift"
+    ],
+    "Font.swift": [
+      "Sources/OpenSwiftUICore/View/Text/Font/Font.swift",
+      "Sources/OpenSwiftUICore/View/Text/Font/SystemFont.swift"
+    ],
+    "Animation.swift": [
+      "Sources/OpenSwiftUICore/Animation/Animation/Animation.swift",
+      "Sources/OpenSwiftUICore/Animation/Animation/BezierAnimation.swift",
+      "Sources/OpenSwiftUICore/Animation/Animation/DelayAnimation.swift",
+      "Sources/OpenSwiftUICore/Animation/Animation/RepeatAnimation.swift",
+      "Sources/OpenSwiftUICore/Animation/Animation/SpeedAnimation.swift",
+      "Sources/OpenSwiftUICore/Animation/Animation/Spring/SpringAnimation.swift",
+      "Sources/OpenSwiftUICore/Animation/Transaction/Transaction.swift"
+    ],
+    "Shape.swift": [
+      "Sources/OpenSwiftUICore/Shape/Shape.swift",
+      "Sources/OpenSwiftUICore/Shape/Path.swift",
+      "Sources/OpenSwiftUICore/Shape/Shapes.swift",
+      "Sources/OpenSwiftUICore/Shape/ShapeView.swift",
+      "Sources/OpenSwiftUICore/Shape/ShapeStyle/ShapeStyle.swift",
+      "Sources/OpenSwiftUICore/Shape/FillStyle.swift",
+      "Sources/OpenSwiftUICore/Shape/StrokeStyle.swift",
+      "Sources/OpenSwiftUICore/Shape/InsettableShape.swift",
+      "Sources/OpenSwiftUICore/Shape/RoundedCornerStyle.swift"
+    ],
+    "App.swift": [
+      "Sources/OpenSwiftUI/App/App/App.swift"
+    ],
+    "AlignmentExtensions.swift": [
+      "Sources/OpenSwiftUICore/Layout/Alignment/AlignmentGuide.swift"
+    ],
+    "AppearanceActionModifier.swift": [
+      "Sources/OpenSwiftUICore/Modifier/ViewModifier/AppearanceActionModifier.swift"
+    ],
+    "ScaleEffect.swift": [
+      "Sources/OpenSwiftUICore/Render/GeometryEffect/ScaleEffect.swift"
+    ],
+    "GeometryEffect.swift": [
+      "Sources/OpenSwiftUICore/Layout/Geometry/Angle.swift",
+      "Sources/OpenSwiftUICore/Render/GeometryEffect/GeometryEffect.swift",
+      "Sources/OpenSwiftUICore/Render/GeometryEffect/RotationEffect.swift"
+    ],
+    "OpacityEffect.swift": [
+      "Sources/OpenSwiftUICore/Render/RendererEffect/OpacityEffect.swift",
+      "Sources/OpenSwiftUICore/Render/RendererEffect/RendererEffect.swift"
+    ],
+    "ZIndex.swift": [
+      "Sources/OpenSwiftUICore/Layout/Stack/ZIndex.swift"
+    ]
+  },
+  "changes": [
+    "Keep App -> View and omit Scene for the single permanent display",
+    "Omit AttributeGraph, _GraphValue, graph invalidation, runtime field reflection and dynamic tuple metadata",
+    "Retain upstream View construction names and add compile-time _makeProperties registration in place of runtime field reflection",
+    "Use _ViewInputs, _ViewOutputs, _ViewListInputs, _ViewListOutputs, _ViewListCountInputs and ViewList for synchronous construction",
+    "Resolve short-lived construction commands into DisplayList.Item values with frame, identity, version and local transaction before LVGL mounting",
+    "Match ViewModifier, PrimitiveViewModifier, UnaryViewModifier, MultiViewModifier, _ViewModifier_Content and ModifiedContent composition",
+    "Implement typed EnvironmentValues keys, Environment and _EnvironmentKeyWritingModifier as synchronous inherited inputs",
+    "Implement Animatable, GeometryEffect, _RendererEffect and RendererEffect without graph-backed interpolation",
+    "Use non-generic LayoutSubviews and LayoutSubview proxies with the upstream Layout method names and integer embedded geometry",
+    "Keep ViewTraitCollection synchronous with concrete Any-valued entries because Embedded Swift cannot invoke generic existential requirements",
+    "Use a statically typed _ViewPair with immutable shared storage and buildPartialBlock because Embedded Swift cannot reflect tuple metadata",
+    "Keep _ViewInputs compact with copy-on-write inherited storage to bound recursive stack use without sharing mutable branch values",
+    "Retain identity scopes as nested display-list commands, parse and mount with explicit frame stacks, and pass a lightweight metrics provider so updates do not copy command arrays, recurse through large RISC-V frames, or clone renderer dictionaries",
+    "Keep eager List and ScrollView; implement keyed ForEach<Data, ID, Content> and IDView without row recycling",
+    "Move the display-list renderer, LVGL backend, font resolution, physical input, timers, animation execution and screenshots into LVGLRendererAdaptor",
+    "Coalesce queued physical-button state changes into one render, keep scroll-only input in place, and use native Circle clipping plus bounded analytic ellipse masks to stay within the fixed LVGL pool",
+    "Use adaptor-supplied rendering limits and defaults, initially 64 nodes and 16 container levels, with identity-based scroll and lifecycle state",
+    "Generate State, Binding and Environment registration on the build host with SwiftSyntax; retain installed locations across child body reconstruction",
+    "Use proposal-aware core layout proxies, explicit alignment guides, ViewSpacing and stack orientation; place through an explicit work stack",
+    "Retain typed DynamicPropertyBox update/reset/destroy phases, IDPhase and phase-driven appearance transitions without AttributeGraph",
+    "Separate display instance identities from stable identity scopes with committed ownership and rollback of uncommitted instances",
+    "Expose eager ViewList element IDs, trait keys, iterator granularity, concrete sublist traversal, explicit-ID offsets and one-update edit snapshots",
+    "Install each composed modifier through a shared entry point; bind State projections to their original location and retain per-host pending transactions",
+    "Require adaptor-supplied implicit root layout and use only representable numeric ranges in portable geometry",
+    "Preserve native LVGL animation time and repeat phase when stable identity and model target are unchanged",
+    "Keep omitted graph/preferences/lazy ViewList and archived renderer-effect APIs explicit; reject unsupported negative scale/reflection instead of silently hiding content",
+    "Preserve adaptor-selected implicit roots in unary and custom modifier list conversion without allocating extra nodes for known unary content",
+    "Pin State body captures to value-local installations while retaining root handles and stale Binding protection",
+    "Allocate stack space by priority group after reserving lower-priority minimum sizes",
+    "Keep animation timing composition in seconds; LVGLRendererAdaptor owns millisecond quantization, native arithmetic limits and repeat-count encoding",
+    "Share one eager row-expansion budget across nested and sibling ForEach construction, including empty rows, and stop after exhaustion"
+  ],
+  "embedded_adaptation_comments": [
+    "Sources/EmbeddedSwiftUI/Animatable.swift",
+    "Sources/EmbeddedSwiftUI/Animation.swift",
+    "Sources/EmbeddedSwiftUI/App.swift",
+    "Sources/EmbeddedSwiftUI/DisplayList.swift",
+    "Sources/EmbeddedSwiftUI/DisplayListLayout.swift",
+    "Sources/EmbeddedSwiftUI/DynamicProperty.swift",
+    "Sources/EmbeddedSwiftUI/Font.swift",
+    "Sources/EmbeddedSwiftUI/LayoutSubviews.swift",
+    "Sources/EmbeddedSwiftUI/RendererConfiguration.swift",
+    "Sources/EmbeddedSwiftUI/RenderTypes.swift",
+    "Sources/EmbeddedSwiftUI/ScrollView.swift",
+    "Sources/EmbeddedSwiftUI/State.swift",
+    "Sources/EmbeddedSwiftUI/ViewBuilder.swift",
+    "Sources/EmbeddedSwiftUI/ViewIdentity.swift",
+    "Sources/EmbeddedSwiftUI/ViewInputs.swift",
+    "Sources/EmbeddedSwiftUI/ViewList.swift",
+    "Sources/EmbeddedSwiftUI/ViewPair.swift",
+    "Sources/EmbeddedSwiftUI/ViewTrait.swift",
+    "Sources/EmbeddedSwiftUI/Alignment.swift",
+    "Sources/EmbeddedSwiftUI/Layout.swift",
+    "Sources/EmbeddedSwiftUI/RendererEffect.swift",
+    "Sources/LVGLRendererAdaptor/DisplayListRenderer.swift",
+    "Sources/LVGLRendererAdaptor/LVGLAnimation.swift",
+    "Sources/LVGLRendererAdaptor/LVGLApplicationRuntime.swift",
+    "Sources/LVGLRendererAdaptor/LVGLRendererAdaptor.swift",
+    "Sources/LVGLRendererAdaptor/LVGLShapeRenderer.swift"
+  ],
+  "embedded_source_alignment": {
+    "EmbeddedAlignment.swift": {
+      "reference_sha256": "8b7a19f468ee1ab810897571fbe385d12453aa66a067dca146bdd9efbf0cb080",
+      "local_file": "Alignment.swift",
+      "local_sha256": "3aa1e7c4c311f7147a68edca6444614b97ada03e756c7b9ab41913808cce8c84",
+      "adaptation": "Use compact typed AlignmentID resolvers with integer guide values instead of runtime alignment-key metadata."
+    },
+    "EmbeddedBackground.swift": {
+      "reference_sha256": "cb503e9a752771883d0945f24da19ea625e6b42d0a7e87aaf0fa9b13f33878c0",
+      "local_file": "Background.swift",
+      "local_sha256": "11f3341da923d21a03507662723294c68115a65e3fdeec01dacaa5d9aa103727",
+      "adaptation": "Use the upstream _BackgroundModifier ownership model and emit synchronous DisplayList content."
+    },
+    "EmbeddedColor.swift": {
+      "reference_sha256": "3d1617a2e6239136fc786ffcc8a36b33eec2a4c2695dcf9670d30a6f35508980",
+      "local_file": "Color.swift",
+      "local_sha256": "e7260c38ef75d951aaf1869fdd237511db049c84786c1b9cec6ae9f0db24635b",
+      "adaptation": "Keep system colors as semantic tokens resolved by adaptor-supplied SystemColorDefinition; retain explicit constant sRGB components."
+    },
+    "EmbeddedEdgeInsets.swift": {
+      "reference_sha256": "03edf1813917c02c7d222fe56aed495d066cb87014c775df7b253a76dce6e23b",
+      "local_file": "EdgeInsets.swift",
+      "local_sha256": "2360c8a347e3de62e29ae0e1ae50f7fe0a1dcabba73b77d6e220f55af8c1edc6"
+    },
+    "EmbeddedFrame.swift": {
+      "reference_sha256": "2497775827008c01b2db55a89a0e2dea988894f4279dfb7e270a3f9db56838bc",
+      "local_file": "Frame.swift",
+      "local_sha256": "ae59ee8ea7fb6a08f4b3cf0c2070c820ed6a400506b50998d80f070d21d1a9ae",
+      "adaptation": "Use the upstream _FrameLayout modifier name with bounded integer-pixel dimensions."
+    },
+    "EmbeddedHStack.swift": {
+      "reference_sha256": "fbe5a57fef1eb35491563ee544cae8cb4c03e393b2b0e4269a1c0e2e6417a764",
+      "local_file": "HStack.swift",
+      "local_sha256": "190752689c15a6ef015e6758f6adefe91ac981d5f73224c5b90c7843a7102d3c",
+      "adaptation": "Emit a synchronous DisplayList while retaining the upstream HStack and HStackLayout roles."
+    },
+    "EmbeddedImage.swift": {
+      "reference_sha256": "21311eb5276169ee310223ce2fb0a4ab39e78b2a05ef8980569a8b711686bace",
+      "local_file": "Image.swift",
+      "local_sha256": "66bd8060cb7e2ccf26f3e25a597c7d6f1c07fd76726da0bafdb21f4dd2ffc911",
+      "adaptation": "Carry the image name and resizing policy to the adaptor's asset resolver and proposal-aware layout."
+    },
+    "EmbeddedLayout.swift": {
+      "reference_sha256": "d5f6f833fb2139ca7bb860567ab5b07e929e351fae357dcd5e759e1f221a62ee",
+      "local_file": "Layout.swift",
+      "local_sha256": "a2550d47ad9f21159ebe55900ba2469c29d0016a4d71be80e081acc45a9ad62d",
+      "adaptation": "Retain Layout measurement, placement, spacing, orientation and explicit-guide callbacks with compact shared callback storage and integer geometry."
+    },
+    "EmbeddedLayoutSubviews.swift": {
+      "reference_sha256": "d23eeb756fa9191e72ba19cfeac61cd2e0b08d8d8fe9e2ccb8de6195e4736f12",
+      "local_file": "LayoutSubviews.swift",
+      "local_sha256": "04ee8e33e5fc541b68eb4de3ade321520e22ee307009341f926cb9b391cb9028",
+      "adaptation": "Use non-generic synchronous proxies for measurement, placement, dimensions and spacing; retain the placement proposal explicitly."
+    },
+    "EmbeddedLayoutView.swift": {
+      "reference_sha256": "46002f4a39868c535bd1c391fd8faebd6ac1fe9306117a1086db6e97e742d8e2",
+      "local_file": "LayoutView.swift",
+      "local_sha256": "82b76f0e782d87f236414fb0c3b047f36e41ac3c72b2370a6d16b39754c0afc7",
+      "adaptation": "Emit a Layout description measured by core proxies with adaptor-provided text/image metrics before mounting."
+    },
+    "EmbeddedOffset.swift": {
+      "reference_sha256": "749918f8ce17eab2b570ce50c698be22cf23a45afb4a4753749276a09e70aac2",
+      "local_file": "Offset.swift",
+      "local_sha256": "36be2e15052f07a310907042d6da2cf6adc35d2fb6713301162ff7c52ad31b97",
+      "adaptation": "Use the upstream _OffsetEffect GeometryEffect role and defer integer rounding to the platform renderer."
+    },
+    "EmbeddedOptionalView.swift": {
+      "reference_sha256": "d8c4d79060d3921e2d472546e081a492fd3d251b60010cff967910457d304a63",
+      "local_file": "OptionalView.swift",
+      "local_sha256": "dc207d1029b7340b7f952dc831a55c6e31b4e9e560c94f827f36a2b6c15c2e58",
+      "adaptation": "Select the present branch synchronously through _makeView and _makeViewList."
+    },
+    "EmbeddedPadding.swift": {
+      "reference_sha256": "6f73af73205062b9e4e11892a61a3ab7bc1d8350b4273107ed72a140344e4cd9",
+      "local_file": "Padding.swift",
+      "local_sha256": "6c06f72419c0f6898350de2eeeaedf54cfe3ca5e65fae82ac0e411200cc84592",
+      "adaptation": "Use the upstream _PaddingLayout modifier name with bounded integer-pixel insets."
+    },
+    "EmbeddedPhysicalButton.swift": {
+      "reference_sha256": "c77d2228588b79c5b725718b876d165159dd5c12f5c5d92cf0f60d953e616936",
+      "local_path": "Sources/LVGLRendererAdaptor/PhysicalButton.swift",
+      "local_sha256": "801850b06d0affeb98187f7f1187ea7eb5fa1fd6cb86016b55ee4e784fc6dabf",
+      "adaptation": "Keep logical board input and its modifier in LVGLRendererAdaptor and emit a generic ViewResponder through _ViewOutputs."
+    },
+    "EmbeddedProposedViewSize.swift": {
+      "reference_sha256": "8040b5350747fa4e41d725673cc858d0312eb58a66777fd803735ca884a2cccc",
+      "local_file": "ProposedViewSize.swift",
+      "local_sha256": "bcd0668a3d27bbdd855a3d76267c6d2f69c0774166a8f5631fd0fdbd1570aa5c",
+      "adaptation": "Use Int32 representable infinity for public proposals; renderer-supplied coordinate limits bound actual stack probes and mounting."
+    },
+    "EmbeddedRect.swift": {
+      "reference_sha256": "2a3b76e4d0e1f9c9436a5300557a107ca4406552e0060bd02b3962e9eb55e785",
+      "local_file": "Rect.swift",
+      "local_sha256": "513476cea8e57ab8d6bb0fd7a5a9f795582532c45e24b14cfd071c7b0ec26344"
+    },
+    "EmbeddedRenderSink.swift": {
+      "reference_sha256": "dc2e54bc72af7168eebb1a30c1b6998bb4c4c3bf469096dc4cdabb4849715fd1",
+      "omitted": "The synchronous sink duplicates View layout and rendering responsibilities; DisplayList is the sole portable output."
+    },
+    "EmbeddedRenderer.swift": {
+      "reference_sha256": "ac527aaca3ec2538f8aeb149393185210c6e8fea0d6d369f5ae84189de4bb86a",
+      "omitted": "Platform rendering is implemented by LVGLRendererAdaptor/DisplayListRenderer.swift."
+    },
+    "EmbeddedRootGeometry.swift": {
+      "reference_sha256": "bbed3803f1ebb402ff54c617d974d038f6237c17fe714683a1a53137d26a3ec1",
+      "local_file": "RootGeometry.swift",
+      "local_sha256": "51cf54a8226fce7939fe05f953356f00b50b4d07f160d0a3ce76868bdcd2f799"
+    },
+    "EmbeddedSize.swift": {
+      "reference_sha256": "0d7c4f57ba8a0bfa4408097faab1da025e23f0136763552d45cc2823b21bd467",
+      "local_file": "Size.swift",
+      "local_sha256": "c00c3cd6baef86a87209c845e6501b0cdb6ab888287b65096c1ac543d38c572f",
+      "adaptation": "Use a stored static constant for the zero size."
+    },
+    "EmbeddedStackLayout.swift": {
+      "reference_sha256": "c1271c2a35285337a9096309d0c809fcb77611b6f5b99ee4dabf58dce9e71961",
+      "local_file": "StackLayout.swift",
+      "local_sha256": "04399b5e49069ecb6bedd5a4e719cd184514f77eb87f7e05d9eca4c5cbd4f281",
+      "adaptation": "Use non-generic LayoutSubview proxies and _StackLayoutCache with integer priority-group allocation and reserved lower-priority minima."
+    },
+    "EmbeddedState.swift": {
+      "reference_sha256": "de4cf6f492ca8b279d971d84bac0adf82ad9fd5288662452195c375018303306",
+      "local_file": "State.swift",
+      "local_sha256": "65aa94618fdba6fed7dc1871d5ea61c5d6635e0bd5fff3992aee5497c263a9b8",
+      "adaptation": "Install State through typed lifecycle boxes and compile-time fields, pin State body captures and Binding to their installed location and propagate Binding transactions."
+    },
+    "EmbeddedText.swift": {
+      "reference_sha256": "fc4855f91eb943fd8c1b989ad49ddd3cd2fce8fb8e97d4a6104eed866b59753e",
+      "local_sha256": "0e65d3c8fb70b81a1f452e47c2cfe722503feee6effba0f5862420da8b2a5b95",
+      "adaptation": "Preserve String initializers and resolve inherited EnvironmentValues into short-lived DisplayList text content.",
+      "local_file": "Text.swift"
+    },
+    "EmbeddedVStack.swift": {
+      "reference_sha256": "e3aa004132bd7d67745539d42603561a1eacf5c59e07b7314e0936e0544a7899",
+      "local_file": "VStack.swift",
+      "local_sha256": "b6f060d83880befb127c8881aed39968e9f1bdffaf859d2eb9cee594fe27bf80",
+      "adaptation": "Emit a synchronous DisplayList while retaining the upstream VStack and VStackLayout roles."
+    },
+    "EmbeddedViewHost.swift": {
+      "reference_sha256": "09e91d03c10f22696e4bfb66dd3b085dd3ffb2854dbc6830ccb2f6894fc48cd2",
+      "local_file": "ViewHost.swift",
+      "local_sha256": "fcbcb3f77ab59c859dc051814a0492f6f3f1b066e24f0d08e4f8ad4f18f4c224",
+      "adaptation": "Retain ViewGraph state locations by structural and explicit identity; commit ownership after successful mounting and invalidate removed bindings."
+    },
+    "EmbeddedViewPair.swift": {
+      "reference_sha256": "c321e0a5e55f17a24c8a6a88c6803fc93b5bf7a021bd51cb5b21f52b78b03d63",
+      "local_file": "ViewPair.swift",
+      "local_sha256": "a85390feebb1981cda82d9eaab3e5d519f68aa0f3b94975d95180bab1cebb636",
+      "adaptation": "Use a statically typed _ViewPair with immutable shared child storage to avoid descendant-value copies on recursive call frames."
+    },
+    "EmbeddedZStack.swift": {
+      "reference_sha256": "2338275f92d0583b2c79f995c6ddf1c6b04a1bc549c19a7cdad18ce45677f469",
+      "local_file": "ZStack.swift",
+      "local_sha256": "3fc9d5722e4da97a8b732bca873219644bfd596b992f148d0d73882af0f00b4a",
+      "adaptation": "Emit synchronous overlay DisplayList content; LVGLRendererAdaptor applies stable zIndex ordering."
+    }
+  },
+  "bridge_reference": {
+    "swift": "ai-passport-main/main/swift/PassportSceneSink.swift",
+    "c": "ai-passport-main/main/demo_openswiftui.c",
+    "adaptations": [
+      "Caller-owned scene instead of global page state",
+      "Caller-provided static image resolver instead of the application-specific spark asset",
+      "Preserve the mounted scene on failure and invalidate for retry",
+      "Build a short-lived DisplayList and consume it synchronously in LVGLRendererAdaptor",
+      "Implement scene, shape, animation, bitmap font selection and screenshots in Swift; retain only imported constants and the screenshot C ABI declaration in HeaderBridge.h",
+      "Map reference Embedded filenames to unprefixed local filenames and record synchronous functional adaptations"
+    ]
+  }
+}

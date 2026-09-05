@@ -7,3 +7,9 @@ managed_components/
 .DS_Store
 __pycache__/
 .trae/
+main/config/WiFiCredentials.local.swift
+main/config/*.pem
+main/config/*.p12
+main/config/*.pfx
+**/.build/
+**/.swiftpm/

@@ -12,7 +12,7 @@ Document scope:
 
 - Applicable target: the ESP32-C3 FoloToy AI Passport mapping implemented by this repository.
 - Product specifications are in [specifications.md](specifications.md); firmware behavior follows `bsp_pins.h`, BSP implementations, `sdkconfig.defaults`, `partitions.csv`, and the demo code.
-- Code audit date: 2026-08-26.
+- Code audit date: 2026-09-05.
 
 ## 1. Before changing hardware-facing code
 
@@ -34,8 +34,8 @@ The target is the ESP32-C3 FoloToy AI Passport with ESP-IDF 5.5.3. It has 8 MB F
 | Buttons | UP/DOWN/OK resistor ladder | GPIO0 / ADC1_CH0 | Events and live-voltage page |
 | Audio | ES8311 playback and microphone | shared I2C + I2S0 full duplex | Playback and recording page |
 | Battery | CW2017 fuel gauge | shared I2C0, address `0x63` | Optional SOC and voltage driver |
-| Wi-Fi | 2.4 GHz station | initialized by the demo | Scan page |
-| Bluetooth LE | NimBLE peripheral | initialized by the demo | Non-connectable advertising page |
+| Wi-Fi | 2.4 GHz station | available for a later transport phase; stopped by Agent Monitor phase one | Swift station wrapper |
+| Bluetooth LE | NimBLE peripheral | boot-time `AgentMonitor` GATT service | Mac task-status monitor |
 | Low power | light/deep sleep | RTC timer wake | 2 s light and 5 s deep-sleep modes |
 | Console | USB Serial/JTAG | native USB GPIO18/19 | Configured |
 
@@ -73,8 +73,8 @@ LCD reset and amplifier enable are `-1`: display reset uses software reset, and 
 | I2S0 | audio BSP | TX and RX are full duplex and share MCLK/BCLK/WS. |
 | USB Serial/JTAG | console configuration | GPIO18/19 are part of the selected console path. |
 | Internal RAM/DMA | display, LVGL, audio, radio, tasks | No PSRAM exists; total free heap and largest contiguous block both matter. |
-| NVS/network event loop | `main/bridge/swift_platform_bridge.c` | Prepared once for Wi-Fi/BLE demos; do not erase unrelated NVS data on initialization errors. |
-| Wi-Fi/BLE stacks | individual demo pages | Current demos start on page entry and deinitialize on exit; the stacks do not remain active together. |
+| NVS/network event loop | `main/legacy/platform/hardware/WiFi.swift`, `main/legacy/wifi/WiFiConnectionController.swift`, `main/legacy/platform/hardware/Bluetooth.swift` | Agent Monitor uses Bluetooth LE's idempotent NVS preparation. A later Wi-Fi transport prepares NVS, `esp_netif`, and the default event loop only when it starts. Do not erase unrelated NVS data on initialization errors. |
+| Wi-Fi/BLE stacks | application services | Agent Monitor starts BLE at boot and leaves Wi-Fi stopped. Measure BLE range, internal-RAM use, and future radio coexistence on device. |
 
 GPIO0 is both the button ADC node and an ESP32-C3 boot-related pin. GPIO21 is the backlight output and conflicts with the commonly used UART0 TX mapping. Pin reassignment requires boot/programming-path review and on-device acceptance.
 
@@ -89,17 +89,20 @@ GPIO0 is both the button ADC node and an ESP32-C3 boot-related pin. GPIO21 is th
 
 ```text
 app_main
-  ├─ shared I2C init and scan
   ├─ display and LVGL init, then backlight
   ├─ button init
-  ├─ audio init
   ├─ battery init
-  └─ LVGL menu and independent demo pages
+  ├─ Agent Monitor audio-alert task
+  ├─ NimBLE `AgentMonitor` GATT service and host task
+  └─ LVGL Agent Monitor screen
+       ├─ focus one session
+       ├─ UP/DOWN changes focus
+       └─ permission request changes color and queues an alert
 ```
 
-Display/LVGL is a hard dependency. Buttons, audio, and battery are soft dependencies whose pages show `[FAIL]` while other pages remain available. Public BSP APIs are under `components/bsp/include/`; most initialization is idempotent, but there is no universal BSP deinitialization API.
+Display/LVGL is a hard dependency. Buttons, alert audio, and battery are soft dependencies: the monitor continues to display status when an optional dependency is unavailable. Public BSP APIs are under `components/bsp/include/`; most initialization is idempotent, but there is no universal BSP deinitialization API.
 
-Wi-Fi, NimBLE, and sleep use ESP-IDF directly rather than the BSP. `main/bridge/swift_platform_bridge.c` owns shared NVS, `esp_netif`, and default-event-loop setup. Wi-Fi and Bluetooth pages allocate their radio stacks on entry and stop/deinitialize them on exit. Do not erase NVS to hide partition errors. Deep sleep restarts the application and the demo uses RTC slow memory for the wake counter.
+The archived Wi-Fi, NimBLE, and sleep implementations use ESP-IDF through the Swift wrappers in `main/legacy/platform/hardware`. `main/legacy/wifi/WiFiConnectionController.swift` owns scan formatting, candidate selection, EAP-TLS credential policy, retry timing, event handling, and resource release. Agent Monitor and these services are not compiled by the current MVP. Do not erase NVS to hide partition errors.
 
 ## 5. Display and LVGL
 
@@ -221,10 +224,10 @@ Run `./tools/validate.sh` for the complete automated gate. A successful build is
 General board acceptance:
 
 - Stable USB Serial/JTAG logs without reboot loops, assertions, watchdogs, or persistent errors.
-- I2C scan sees ES8311 at `0x18` and, when fitted, CW2017 at `0x63`.
-- UP/DOWN wraps menu navigation, OK click enters, and OK long press returns.
-- An optional peripheral failure disables only its page.
-- Repeated navigation and operation do not leak heap, tasks, timers, or objects.
+- I2C audio control sees ES8311 at `0x18` and, when fitted, CW2017 at `0x63`.
+- UP/DOWN changes the focused Agent Monitor session without blocking the button callback.
+- An unavailable alert-audio or battery peripheral leaves BLE status display available.
+- Repeated session changes, BLE reconnects, and alerts do not leak heap, tasks, timers, or objects.
 
 | Change | Required physical observations |
 | --- | --- |
@@ -233,8 +236,8 @@ General board acceptance:
 | ADC/buttons | released and pressed mV, click/double/long events, margin across battery levels |
 | Codec/I2S | 1 kHz tone, non-zero recording, correct playback speed, format changes, page exit |
 | Battery | plausible SOC/mV, graceful missing-device behavior, intermittent-I2C recovery |
-| Wi-Fi | visible scan count/SSID/RSSI, rescan, repeated entry/exit |
-| Bluetooth LE | phone sees `FoloPassport`, restart advertising, advertising stops on exit, repeated entry/exit |
+| Wi-Fi | Agent Monitor phase one leaves it stopped; measure station connection, credentials, reconnect, and BLE coexistence before enabling a later Wi-Fi transport |
+| Bluetooth LE | Mac sees `AgentMonitor`, bridge connects and writes a status update, permission request shows red and plays the alert, UP/DOWN changes focused sessions, and disconnect/reconnect resumes advertising and scanning |
 | Light/deep sleep | select with UP/DOWN; 2 s light sleep resumes with backlight; 5 s deep sleep restarts with timer cause and retained count |
 | DMA/memory/UI | build memory report, runtime minimum heap/largest block, stable concurrent audio/display |
 
@@ -254,7 +257,7 @@ General board acceptance:
 | Recording is zero | `no_dac_ref`, DIN GPIO4, microphone path, gain |
 | Recording allocation fails | no PSRAM; shorten/stream and inspect largest block |
 | Battery shows `--` | `0x63` response, invalid SOC, profile/startup delay |
-| Wi-Fi/BLE fails on second entry | stack stop/deinit and one-time NVS/event-loop setup |
+| Agent Monitor does not reconnect | Mac Bluetooth permission, bridge process and same-user socket, service UUID, NimBLE advertising restart, and central connection limit |
 | Black after light sleep | timer wake source, sleep error, backlight restore |
 | Deep sleep does not restart | timer source, boot wake cause, RTC counter |
 | I2S allocation fails after UI growth | competition among LCD/LVGL buffers and I2S DMA |

@@ -18,25 +18,32 @@ FoloToy AI Passport 是一个开放式可穿戴 AI 硬件，本仓库是这款 A
 
 | 能力 | 已确认实现 | 应用接口 | 必须遵守的边界 |
 | --- | --- | --- | --- |
-| 显示 | ST7789P3，240 × 320，竖屏 RGB565，SPI2 40 MHz；LEDC 背光 | `bsp_display_*`、`bsp_lvgl_*` | ESP32-C3 无 PSRAM；当前为小型单 DMA 缓冲；BSP 未暴露 LCD MISO、触摸或 TE 接口 |
+| 显示 | ST7789P3，240 × 320，竖屏 RGB565，SPI2 40 MHz；LEDC 背光 | `main/legacy/platform/hardware/Display.swift`、`bsp_lvgl_*` | ESP32-C3 无 PSRAM；当前为小型单 DMA 缓冲；BSP 未暴露 LCD MISO、触摸或 TE 接口 |
 | 输入 | `UP` / `DOWN` / `OK` 三键，共用 GPIO0 的 ADC 电阻分压 | `bsp_button_init()`、`bsp_button_read_mv()` | 回调运行在 button 组件任务中，不能阻塞；不能再创建第二个 ADC1 unit |
-| 音频 | ES8311，I2S0 全双工 PCM，可播放和麦克风录音 | `bsp_audio_*` | PCM 读写为阻塞调用，应放工作任务；格式切换必须保留 BSP 内的 close/open 流程 |
-| 电池 | CW2017 的 SOC 与电压读取 | `bsp_battery_*` | 是可缺省能力；读数精度取决于电芯与 profile，不能等同于已标定结果 |
-| Wi-Fi | 按需 2.4 GHz STA 扫描 demo | `main/pages/LVWiFiViewController.swift` | 仅扫描；不连接、不存凭证、不验证天线/射频表现 |
-| Bluetooth LE | 按需以 `FoloPassport` 名义做不可连接的 NimBLE 广播 | `main/pages/LVBluetoothViewController.swift` | ESP32-C3 不支持蓝牙经典；射频范围、共存与功耗需实测 |
-| 低功耗 | 两秒浅睡眠与五秒深睡眠，均以 RTC 定时器唤醒 | `main/pages/LVLowPowerViewController.swift` | 深睡眠会重启应用；当前 demo 只提供 RTC 定时器唤醒 |
+| 音频 | ES8311，I2S0 全双工 PCM，可播放和麦克风录音 | `main/legacy/platform/hardware/Speaker.swift`、`main/legacy/platform/hardware/Microphone.swift` | PCM 读写为阻塞调用，应放工作任务；格式切换必须保留 BSP 内的 close/open 流程 |
+| 电池 | CW2017 的 SOC 与电压读取 | `main/legacy/platform/hardware/Battery.swift` | 是可缺省能力；读数精度取决于电芯与 profile，不能等同于已标定结果 |
+| Wi-Fi | 按需启动的 2.4 GHz STA 扫描页，只显示固件中已经配置的 SSID | `main/legacy/platform/hardware/WiFi.swift`、`main/legacy/wifi/WiFiConnectionController.swift` | 凭据只能写入已忽略的 `main/legacy/config/WiFiCredentials.local.swift`；天线/射频表现及 Wi-Fi/BLE 共存需实机测量 |
+| Bluetooth LE | 开机初始化 NimBLE `AgentMonitor` 服务，由本机授权首次配对、保存一台 Mac 的 bond，并加密写入任务状态 | `main/legacy/platform/hardware/Bluetooth.swift`、`main/legacy/agentmonitor/AgentMonitorBLETransport.swift` | ESP32-C3 不支持蓝牙经典；展示前请保留所有者 bond；射频范围、共存与功耗需实测 |
+| 低功耗 | 两秒浅睡眠与五秒深睡眠，均以 RTC 定时器唤醒 | `main/legacy/platform/hardware/SleepManager.swift` | 深睡眠会重启应用；当前 demo 只提供 RTC 定时器唤醒 |
 | 共享总线 | ES8311 与 CW2017 共用 I2C0 | `bsp_i2c_*` | 所有设备复用 BSP 持有的总线；不能为扫描或新设备再创建同端口总线 |
 | 日志与烧录 | ESP32-C3 原生 USB Serial/JTAG | ESP-IDF console | GPIO18/19 保留给 USB；UART0 默认 TX GPIO21 与背光冲突 |
 
 所有引脚、地址、面板参数和按键电压窗口只在 [`components/bsp/include/bsp_pins.h`](../components/bsp/include/bsp_pins.h) 定义。应用代码不得复制这些常量。完整引脚表、面板初始化、ADC 阈值、I2C 地址规则、音频时钟和内存说明见 [AI 硬件开发指南](hardware-design/AI_HARDWARE_DEVELOPMENT_GUIDE.zh_CN.md)。
 
-应用也可以使用 ESP-IDF 提供的定时器、FreeRTOS 任务和内部 Flash/NVS；番茄钟分支提供了 NVS 示例。Wi-Fi 和 Bluetooth LE 仍是 ESP-IDF 应用服务而非 BSP API：其菜单页面仅在打开时初始化对应协议栈、退出时释放。`demo/claude-buddy-port` 仍是更完整的 BLE 应用架构参考，不能替代对当前板卡天线、射频表现、功耗和共存行为的实测。当前产品与固件基线使用 8 MB Flash，包含 3 MB factory-app 分区，并固定保留设备身份与永久 Recovery 区域，使二创固件仍可通过小程序安装。
+应用也可以使用 ESP-IDF 提供的定时器、FreeRTOS 任务和内部 Flash/NVS；番茄钟分支提供了 NVS 示例。Wi-Fi 和 Bluetooth LE 仍是 ESP-IDF 应用服务而非 BSP API。原 Agent Monitor 实现已归档到 `main/legacy`，当前 MVP 不参与编译。其配对、Hook 配置、协议和真机验收见 [Agent Monitor](development/agent-monitor.zh_CN.md)，本地凭据应放在已忽略的 `main/legacy/config/WiFiCredentials.local.swift`。`demo/claude-buddy-port` 仍是更完整的 BLE 应用架构参考，不能替代对当前板卡天线、射频表现、功耗和共存行为的实测。当前产品与固件基线使用 8 MB Flash，包含 3 MB factory-app 分区，并固定保留设备身份与永久 Recovery 区域，使二创固件仍可通过小程序安装。
 
 ### 不属于当前能力契约的事项
 
 公开固件能力以表中接口为限，不能仅凭 ESP32-C3 芯片能力推断其他板级接口。新增硬件接口必须提供明确的 BSP 定义和实机验收标准。
 
 ## 用一句需求开始开发
+
+[USB 投屏 MVP](development/engineering/usb-mirroring.zh_CN.md)通过原生 USB 连接，
+将 LVGL 屏幕实时显示在 PassportMirroring macOS App 中。
+
+当前 MVP 启动后显示 [EmbeddedSwiftUI 演示](development/engineering/embedded-swiftui.zh_CN.md)。
+该说明记录了两个模块组成的源码子集、构建命令、支持的 API，以及原有 Agent Monitor
+应用的构建选项。
 
 简单需求可以直接交给 AI 助手：
 
@@ -96,7 +103,7 @@ git switch -c feature/my-passport-app
 ```text
 components/bsp/include/  BSP 公开 API 与 bsp_pins.h 硬件事实
 components/bsp/src/      显示、按键、音频、电池、共享 I2C 实现
-main/                    最小菜单、LVGL UI 与独立硬件演示页
+main/                    OpenSwiftUI MVP；原应用代码集中存放于 main/legacy/
 tests/                   可脱离硬件运行的轻量逻辑测试源
 tools/                   本地与 CI 共用的验证及固件校验脚本
 docs/                    项目说明、变更记录、工程/协作规范与设计参考

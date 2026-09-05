@@ -61,6 +61,29 @@ class PartitionParserTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "MD5"):
             VERIFY.parse_partition_table(bytes(raw))
 
+    def test_parses_swift_view_input_symbols_and_stack_frame(self) -> None:
+        symbol = "$e15EmbeddedSwiftUI11_ViewInputsV14pushStableTypeABC"
+        symbols = VERIFY.parse_nm_symbols(
+            f"4201394e 000000b8 t {symbol}\n"
+            "42014000 00000040 t unrelated\n",
+            VERIFY.SWIFT_VIEW_INPUT_SYMBOL,
+        )
+        self.assertEqual(symbols, [(0x4201394E, 0xB8, symbol)])
+        self.assertEqual(
+            VERIFY.parse_riscv_stack_frame(
+                "4201394e: 711d addi sp,sp,-96\n42013950: ce86 sw ra,92(sp)"
+            ),
+            96,
+        )
+
+    def test_rejects_regressed_swift_view_input_stack_frame(self) -> None:
+        with self.assertRaisesRegex(ValueError, "448 bytes"):
+            VERIFY.validate_swift_view_input_frames([96, 448])
+
+    def test_rejects_missing_swift_view_input_stack_evidence(self) -> None:
+        with self.assertRaisesRegex(ValueError, "evidence is missing"):
+            VERIFY.validate_swift_view_input_frames([])
+
 
 if __name__ == "__main__":
     unittest.main()

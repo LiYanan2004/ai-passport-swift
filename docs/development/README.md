@@ -9,6 +9,7 @@ This directory contains AI Passport engineering rules and reusable workflows, gr
 ## AI workflow
 
 - [ai-guide.md](ai-guide.md): AI-assisted development workflow.
+- [agent-monitor.md](agent-monitor.md): phase-one Mac-to-device Codex Hooks, BLE transport, and device acceptance.
 
 ## Engineering
 

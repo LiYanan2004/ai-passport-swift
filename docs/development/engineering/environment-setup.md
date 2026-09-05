@@ -6,7 +6,8 @@
 
 This document lets an AI agent bootstrap a clean checkout without relying on a
 developer-specific shell function, absolute path, IDE, or preinstalled ESP-IDF.
-The required baseline is ESP-IDF 5.5.3 and Swift 6.3.3 for ESP32-C3.
+The required baseline is ESP-IDF 5.5.3 and an Embedded Swift-compatible Swift
+toolchain for ESP32-C3.
 
 ## Agent contract
 
@@ -109,23 +110,29 @@ WSL2 can run the Linux build flow. USB flashing and monitoring require a device
 forwarded into WSL; otherwise build in WSL and flash from an activated native
 Windows ESP-IDF terminal.
 
-## Install Embedded Swift 6.3.3
+## Install Embedded Swift
 
-The project tracks `.swift-version` and resolves the physical compiler through
-Swiftly so CMake does not accidentally use Xcode's unsupported toolchain.
-Install Swiftly using the [official Swift installation instructions](https://www.swift.org/install/),
-then install and select the pinned toolchain:
+CMake uses `CMAKE_Swift_COMPILER` when it is set. Swiftly is optional. Confirm
+that the selected compiler is available:
 
 ```bash
-swiftly install 6.3.3
-swiftly use 6.3.3
-swiftly use --print-location
+swiftc --version
 ```
 
-The final command must print the installed Swift 6.3.3 toolchain directory.
-After this one-time host setup, a checkout needs no project-local Swift
-installation: `idf.py` downloads the pinned `idf_swift` component automatically
-from the tracked manifest and lockfile.
+For a compiler outside `PATH`, configure CMake with its absolute path:
+
+```bash
+cmake -DCMAKE_Swift_COMPILER=/absolute/path/to/swiftc ...
+```
+
+The compiler must include the Embedded Swift standard library for
+`riscv32-none-none-eabi`; Xcode's bundled Swift does not include it. A Swift.org
+toolchain installed through its macOS `.pkg` installer provides the required
+standard library. Pass the toolchain's `swiftc` path to the first build in a
+new build directory.
+
+`idf.py` downloads the pinned `idf_swift` component automatically from the
+tracked manifest and lockfile.
 
 ## Install ESP-IDF 5.5.3
 

@@ -54,6 +54,7 @@ static const st_init_cmd_t ST7789P3_CMDS[] = {
 };
 
 static void backlight_init(void) {
+    if (s_bl_ready) return;
     if (BSP_LCD_BL < 0) { ESP_LOGW(TAG, "背光引脚未接 MCU,亮度不可调"); return; }
     ledc_timer_config_t t = {
         .speed_mode      = BSP_BL_LEDC_MODE,
@@ -82,6 +83,9 @@ static void backlight_init(void) {
 
 esp_err_t bsp_display_init(void) {
     if (s_panel) return ESP_OK;
+
+    // 首帧完整绘制前保持背光关闭，避免显示未初始化的显存。
+    backlight_init();
 
     spi_bus_config_t bus = {
         .mosi_io_num = BSP_LCD_MOSI,
@@ -130,7 +134,6 @@ esp_err_t bsp_display_init(void) {
     esp_lcd_panel_set_gap(s_panel, 0, 0);
     esp_lcd_panel_disp_on_off(s_panel, true);                    // 0x29 DISPON
 
-    backlight_init();
     ESP_LOGI(TAG, "显示就绪 %dx%d", BSP_LCD_W, BSP_LCD_H);
     return ESP_OK;
 }
